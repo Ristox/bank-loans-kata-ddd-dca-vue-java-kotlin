@@ -1,12 +1,12 @@
 # BANK LOAN ELIGIBILITY - BACKLOG
 
-###  [\[ O \] BANK-01:  Loan application input form](backlog/___ONGOING__BANK-01.md)
+###  [\[ OK \] BANK-01:  Loan application input form](backlog/__DONE______BANK-01.md)
 
    As a user, I want to see the input form for loan application -  
     - with fields for a personal code (SSN), loan amount (in Euros) and loan period (in months)  
     - so that I can enter my desired loan information, currently without any restrictions
 
-### [\[ _ \] BANK-02: Requested loan parameters validation](backlog/____TODO____BANK-02.md)
+### [\[ O \] BANK-02: Requested loan parameters validation](backlog/___ONGOING__BANK-02.md)
 
    As a user, I want to enter loan applicant's personal code (SSN), loan amount (in Euros)  
    and period (in months), and immediately understand whether the provided values are valid  
