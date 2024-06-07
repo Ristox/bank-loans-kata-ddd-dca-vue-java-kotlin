@@ -1,2 +1,7 @@
-# bank-loans
-bank loans exercise (eligibility feature)
+# BANK LOAN ELIGIBILITY
+
+* **[BUSINESS REQUIREMENTS](DOC01-REQUIREMENTS.md)**
+
+
+* **[BACKLOG](DOC02-BACKLOG.md)**
+
