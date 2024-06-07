@@ -1,16 +1,26 @@
-# Compiled class file
-*.class
+.DS_Store
 
-# Log file
+logs
 *.log
 
-# BlueJ files
-*.ctxt
+.idea/
+*.iml
 
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
+*.class
+**/out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+**/build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+**/dist/
+**/node_modules/
+dist-ssr
+*.local
 
-# Package Files #
+.gradle/
+!**/gradle/wrapper/gradle-wrapper.jar
+
 *.jar
 *.war
 *.nar
@@ -19,6 +29,12 @@
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
 replay_pid*
+
+database.db
+
+**/cypress/plugins
+**/cypress/support
+**/cypress/screenshots
+**/cypress/videos

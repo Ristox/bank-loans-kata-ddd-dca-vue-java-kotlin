@@ -1,0 +1,42 @@
+plugins {
+  id 'java'
+  id 'org.springframework.boot' version '3.3.0'
+  id 'io.spring.dependency-management' version '1.1.5'
+}
+
+bootJar {
+  enabled = false
+}
+
+group = 'ee.rsx.kata.bank'
+version = '1.0.0-SNAPSHOT'
+sourceCompatibility = '17'
+
+
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.xerial:sqlite-jdbc:3.46.0.0'
+	implementation 'org.hibernate:hibernate-core:6.5.2.Final'
+	implementation 'org.hibernate.orm:hibernate-community-dialects'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
+
+jar {
+	enabled = true
+    manifest {
+        attributes(
+			    'Class-Path': configurations.runtimeClasspath.collect{it.toURI().toString()}.join(' '),
+                'Main-Class': 'ee.rsx.kata.bank.app.BackendServer'
+        )
+    }
+}
