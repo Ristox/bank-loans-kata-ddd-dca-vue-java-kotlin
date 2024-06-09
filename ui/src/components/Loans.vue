@@ -2,19 +2,19 @@
   <div class="col-md-12">
     <div class="card card-container">
       <Form @submit="doSubmit" :validation-schema="schema">
-        <div class="form-group">
+        <div class="form-group required">
           <label for="ssn">Personal code (SSN)</label>
           <Field name="ssn" type="text" class="form-control"/>
           <ErrorMessage name="ssn" class="error-feedback"/>
         </div>
 
-        <div class="form-group">
+        <div class="form-group required">
           <label for="loanAmount">Loan amount (€)</label>
           <Field name="loanAmount" type="text" class="form-control"/>
           <ErrorMessage name="loanAmount" class="error-feedback"/>
         </div>
 
-        <div class="form-group">
+        <div class="form-group required">
           <label for="loanPeriodMonths">Loan period (months)</label>
           <Field name="loanPeriodMonths" type="text" class="form-control"/>
           <ErrorMessage name="loanPeriodMonths" class="error-feedback"/>
@@ -54,9 +54,11 @@
 
 
 <script lang="ts">
-import {Form, Field, ErrorMessage} from 'vee-validate';
+import { ErrorMessage, Field, Form } from 'vee-validate';
 import * as yup from 'yup';
-import server from "../server/server";
+import { ValidationError } from 'yup';
+import server, { COMPLETE_SSN_LENGTH } from "../server/server";
+import { ValidationStatus } from "../models/SsnValidationResult";
 
 export default {
   name: "Loans",
@@ -68,18 +70,42 @@ export default {
   data() {
     const schema = yup.object()
       .shape({
-        ssn: yup.number()
+        ssn:
+          yup.number()
             .typeError('Please enter a valid number')
-            .required("Please enter a personal code (SSN)"),
+            .required("Please enter a personal code (SSN)")
+            .test(
+              'validateSocialSecurityNumber',
+              'Personal code (SSN) is not valid',
+              validateSocialSecurityNumber
+            ),
 
-        loanAmount: yup.number()
+        loanAmount:
+          yup.number()
             .typeError('Please enter a valid number')
             .required("Please enter a loan amount"),
 
-        loanPeriodMonths: yup.number()
+        loanPeriodMonths:
+          yup.number()
             .typeError('Please enter a valid number')
             .required("Please enter a loan period"),
       });
+
+    async function validateSocialSecurityNumber(value: number): Promise<boolean | ValidationError> {
+      if (value.toString().length != COMPLETE_SSN_LENGTH) {
+        return false
+      }
+      try {
+        const validationResult = await server.validateSocialSecurityNumber(value)
+        if (validationResult) {
+          return validationResult.status == ValidationStatus.OK;
+        } else {
+          return true;
+        }
+      } catch (error: any) {
+        return new ValidationError('Error: validation service unavailable')
+      }
+    }
 
     return {
       loading: false,
@@ -103,7 +129,6 @@ export default {
         const healthResponse = await server.checkHealth()
         this.response = 'Health status: ' + healthResponse.status
       } catch (err) {
-        console.log(err)
         this.error = 'Error: service unavailable'
       } finally {
         this.loading = false
@@ -138,5 +163,10 @@ label {
 
 .error-feedback {
   color: red;
+}
+
+.form-group.required label:after {
+  content:"*";
+  color:red;
 }
 </style>
