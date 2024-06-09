@@ -10,4 +10,11 @@ or not, as per the system's rules:
 
 #### Subtasks  
 
-  * WIP
+  * **\[ OK ] BANK-02-A: Estonian SSN validation**
+    * Ensure that the personal code is a valid Estonian personal code
+
+  * **\[ O ] BANK-02-B: Requested loan amount range validation**
+      * Ensure that the loan amount is between 2,000EUR and 10,000EUR  
+    
+  * **\[ O ] BANK_02_C: Requested loan period range validation**
+      * Ensure that the loan period is between 12 months and 60 months  
