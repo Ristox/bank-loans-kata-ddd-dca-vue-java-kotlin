@@ -1,18 +1,34 @@
-interface User {
-    id: number;
-    firstName: string;
-    lastName: string;
-}
+import SsnValidationResult from "../models/SsnValidationResult";
 
 const SERVER_URL = '/api'
 
+export const COMPLETE_SSN_LENGTH = 11
+
 class Server {
+
+    private lastRequestedSsn?: number = undefined
+    private lastValidationResult?: SsnValidationResult = undefined
 
     constructor() {}
 
     async checkHealth(): Promise<any> {
         const response = await fetch(SERVER_URL + '/health')
-        return response.json()
+        return await response.json()
+    }
+
+    async validateSocialSecurityNumber(ssn: number): Promise<SsnValidationResult | undefined> {
+        let isCompleteLength = ssn.toString().length == COMPLETE_SSN_LENGTH;
+        let isFirstValidationRequest = !this.lastRequestedSsn;
+        let ssnHasChanged = this.lastRequestedSsn && ssn != this.lastRequestedSsn
+
+        if (isCompleteLength && (isFirstValidationRequest || ssnHasChanged)) {
+            this.lastRequestedSsn = ssn
+
+            const response = await fetch(SERVER_URL + '/loans/validation/ssn?value=' + ssn)
+            this.lastValidationResult = await response.json()
+        }
+
+        return this.lastValidationResult
     }
 }
 
