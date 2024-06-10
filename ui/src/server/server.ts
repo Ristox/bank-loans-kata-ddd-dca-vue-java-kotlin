@@ -16,11 +16,6 @@ class Server {
 
     constructor() {}
 
-    async checkHealth(): Promise<any> {
-        const response = await fetch(`${SERVER_URL}/health`)
-        return await response.json()
-    }
-
     async validateSocialSecurityNumber(ssn: number): Promise<SsnValidationResult | undefined> {
         const isCompleteLength = ssn.toString().length == COMPLETE_SSN_LENGTH;
         const isFirstValidationRequest = !this.lastRequestedSsn;
