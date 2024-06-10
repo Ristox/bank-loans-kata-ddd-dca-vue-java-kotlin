@@ -7,6 +7,7 @@ import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
 import ee.rsx.kata.bank.loans.validation.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.ValidateSocialSecurityNumber;
 import ee.rsx.kata.bank.loans.validation.ValidationLimitsDTO;
+import ee.rsx.kata.bank.loans.validation.core.domain.SocialSecurityNumber;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Named;
 import lombok.RequiredArgsConstructor;
@@ -26,12 +27,15 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
 
   private final ValidateSocialSecurityNumber validateSocialSecurityNumber;
   private final LoadValidationLimits loadValidationLimits;
+  private final FindCreditSegment findCreditSegment;
 
   @Override
   public LoanEligibilityResultDTO on(LoanEligibilityRequestDTO eligibilityRequest) {
     List<String> validationErrors = validate(eligibilityRequest);
 
-    LoanEligibilityStatus result = isEmpty(validationErrors) ? APPROVED : INVALID;
+    LoanEligibilityStatus result = isEmpty(validationErrors)
+      ? calculateEligibility(eligibilityRequest)
+      : INVALID;
 
     return new LoanEligibilityResultDTO(
       result,
@@ -40,6 +44,19 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
       eligibilityRequest.loanAmount(),
       eligibilityRequest.loanPeriodMonths()
     );
+  }
+
+  private LoanEligibilityStatus calculateEligibility(LoanEligibilityRequestDTO request) {
+    SocialSecurityNumber ssn = new SocialSecurityNumber(request.ssn());
+
+    Optional<CreditSegment> creditSegment = findCreditSegment.forPerson(ssn);
+
+    return creditSegment
+      .map(segment -> {
+        double creditScore = (double) segment.creditModifier() / request.loanAmount() * request.loanPeriodMonths();
+        return creditScore > 1 ? APPROVED : DENIED;
+      })
+      .orElse(DENIED);
   }
 
   private @Nullable List<String> validate(LoanEligibilityRequestDTO eligibilityRequest) {

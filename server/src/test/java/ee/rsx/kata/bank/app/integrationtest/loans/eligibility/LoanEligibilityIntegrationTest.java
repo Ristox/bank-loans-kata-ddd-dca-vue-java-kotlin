@@ -24,15 +24,49 @@ public class LoanEligibilityIntegrationTest {
   private MockMvc mockMvc;
 
   @Test
-  @DisplayName("returns an APPROVED eligibility result for the provided loan request")
-  void returns_APPROVED_result_forProvidedLoanRequest() throws Exception {
+  @DisplayName("returns an DENIED eligibility result for the provided loan request, since person is in DEBT")
+  void returns_APPROVED_result_forProvidedLoanRequest_sincePersonInDebt() throws Exception {
+    var personInDebt = "49002010965";
     var loanEligibilityRequest = """
         {
-          "ssn": "49002010965",
+          "ssn": "%s",
           "loanAmount": 4500,
           "loanPeriodMonths": 36
         }
-      """;
+      """.formatted(personInDebt);
+    var postRequest =
+      post(LOAN_ELIGIBILITY_URL)
+        .contentType(APPLICATION_JSON)
+        .content(loanEligibilityRequest);
+
+    var notAcceptableStatus = status().isNotAcceptable();
+    mockMvc.perform(postRequest)
+      .andExpect(notAcceptableStatus)
+      .andExpect(
+        content().json(
+          """
+              {
+                "result": "DENIED",
+                "ssn": "%s",
+                "loanAmount": 4500,
+                "loanPeriodMonths": 36
+              }
+            """.formatted(personInDebt)
+        )
+      );
+  }
+
+  @Test
+  @DisplayName("returns an APPROVED eligibility result for the provided loan request, since person is in high SEGMENT 3")
+  void returns_APPROVED_result_forProvidedLoanRequest_sincePersonInHighCreditSegment() throws Exception {
+    var highCreditPerson = "49002010998";
+    var loanEligibilityRequest = """
+        {
+          "ssn": "%s",
+          "loanAmount": 4500,
+          "loanPeriodMonths": 36
+        }
+      """.formatted(highCreditPerson);
     var postRequest =
       post(LOAN_ELIGIBILITY_URL)
         .contentType(APPLICATION_JSON)
@@ -45,11 +79,76 @@ public class LoanEligibilityIntegrationTest {
           """
               {
                 "result": "APPROVED",
-                "ssn": "49002010965",
+                "ssn": "%s",
                 "loanAmount": 4500,
                 "loanPeriodMonths": 36
               }
-            """
+            """.formatted(highCreditPerson)
+        )
+      );
+  }
+
+  @Test
+  @DisplayName("returns an APPROVED eligibility result for the provided loan request, since person is in good SEGMENT 2")
+  void returns_APPROVED_result_forProvidedLoanRequest_sincePersonInGoodCreditSegment() throws Exception {
+    var goodCreditPerson = "49002010987";
+    var loanEligibilityRequest = """
+        {
+          "ssn": "%s",
+          "loanAmount": 4500,
+          "loanPeriodMonths": 36
+        }
+      """.formatted(goodCreditPerson);
+    var postRequest =
+      post(LOAN_ELIGIBILITY_URL)
+        .contentType(APPLICATION_JSON)
+        .content(loanEligibilityRequest);
+
+    mockMvc.perform(postRequest)
+      .andExpect(status().isOk())
+      .andExpect(
+        content().json(
+          """
+              {
+                "result": "APPROVED",
+                "ssn": "%s",
+                "loanAmount": 4500,
+                "loanPeriodMonths": 36
+              }
+            """.formatted(goodCreditPerson)
+        )
+      );
+  }
+
+  @Test
+  @DisplayName("returns a DENIED eligibility result for the provided loan request, since person is in low SEGMENT 1")
+  void returns_DENIED_result_forProvidedLoanRequest_sincePersonInLowCreditSegment() throws Exception {
+    var lowCreditPerson = "49002010976";
+    var loanEligibilityRequest = """
+        {
+          "ssn": "%s",
+          "loanAmount": 4500,
+          "loanPeriodMonths": 36
+        }
+      """.formatted(lowCreditPerson);
+    var postRequest =
+      post(LOAN_ELIGIBILITY_URL)
+        .contentType(APPLICATION_JSON)
+        .content(loanEligibilityRequest);
+
+    var notAcceptableStatus = status().isNotAcceptable();
+    mockMvc.perform(postRequest)
+      .andExpect(notAcceptableStatus)
+      .andExpect(
+        content().json(
+          """
+              {
+                "result": "DENIED",
+                "ssn": "%s",
+                "loanAmount": 4500,
+                "loanPeriodMonths": 36
+              }
+            """.formatted(lowCreditPerson)
         )
       );
   }

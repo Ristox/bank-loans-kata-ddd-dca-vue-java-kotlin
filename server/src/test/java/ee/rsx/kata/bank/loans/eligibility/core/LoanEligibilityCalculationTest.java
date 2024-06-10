@@ -7,6 +7,7 @@ import ee.rsx.kata.bank.loans.validation.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.SsnValidationResultDTO;
 import ee.rsx.kata.bank.loans.validation.ValidateSocialSecurityNumber;
 import ee.rsx.kata.bank.loans.validation.ValidationLimitsDTO;
+import ee.rsx.kata.bank.loans.validation.core.domain.SocialSecurityNumber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -18,13 +19,16 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
 import java.util.List;
+import java.util.Optional;
 
 import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
+import static ee.rsx.kata.bank.loans.eligibility.core.CreditSegmentType.*;
 import static ee.rsx.kata.bank.loans.validation.SsnValidationResultDTO.*;
 import static java.util.Arrays.stream;
+import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 @DisplayName("Loan eligibility calculation")
 @ExtendWith(MockitoExtension.class)
@@ -57,6 +61,9 @@ class LoanEligibilityCalculationTest {
   @Mock
   private LoadValidationLimits loadValidationLimits;
 
+  @Mock
+  private FindCreditSegment findCreditSegment;
+
   @InjectMocks
   private LoanEligibilityCalculation calculateLoanEligibility;
 
@@ -67,12 +74,16 @@ class LoanEligibilityCalculationTest {
 
     when(loadValidationLimits.invoke())
       .thenReturn(TEST_VALIDATION_LIMITS);
+
+    when(findCreditSegment.forPerson(any()))
+      .thenReturn(empty());
   }
 
   @Test
   @DisplayName("returns APPROVED result along with provided valid eligibility request data")
   void returns_APPROVED_result_with_providedValidEligibilityRequestData() {
     LoanEligibilityRequestDTO validRequest = testRequest().create();
+    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 1000);
 
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
 
@@ -80,9 +91,64 @@ class LoanEligibilityCalculationTest {
       .isEqualTo(expectedResult(APPROVED).create());
   }
 
+  @Test
+  @DisplayName("returns DENIED result, when credit segment for given person is not found")
+  void returns_DENIED_result_when_creditSegmentForGivenPerson_isNotFound() {
+    LoanEligibilityRequestDTO validRequest = testRequest().create();
+    whenCreditSegmentNotFoundForPerson(DEFAULT_SSN);
+
+    LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
+
+    assertThat(result)
+      .isEqualTo(expectedResult(DENIED).create());
+  }
+
+  @Test
+  @DisplayName("returns DENIED result, when credit segment found, but its credit modifier too low for requested loan")
+  void returns_DENIED_result_when_creditSegmentFound_butCreditModifierTooLowForRequestedLoan() {
+    LoanEligibilityRequestDTO validRequest = testRequest().create();
+    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 100);
+
+    LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
+
+    assertThat(result)
+      .isEqualTo(expectedResult(DENIED).create());
+  }
+
+  @Test
+  @DisplayName("returns APPROVED result, when low credit segment found, but period is long enough (46 months)")
+  void returns_APPROVED_result_when_lowCreditSegmentFound_butPeriodIsLongEnough_fortySixMonths() {
+    int fortySixMonths = 46;
+    LoanEligibilityRequestDTO validRequest = testRequest().period(fortySixMonths).create();
+    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 100);
+
+    LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
+
+    assertThat(result)
+      .isEqualTo(expectedResult(APPROVED).period(fortySixMonths).create());
+  }
+
+  @Test
+  @DisplayName("returns APPROVED result, when low credit segment found, but amount is small enough")
+  void returns_APPROVED_result_when_lowCreditSegmentFound_butAmountIsSmallEnough() {
+    int smallAmount = 2000;
+    LoanEligibilityRequestDTO validRequest = testRequest().amount(smallAmount).create();
+    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 60);
+
+    LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
+
+    assertThat(result)
+      .isEqualTo(expectedResult(APPROVED).amount(smallAmount).create());
+  }
+
   @Nested
   @DisplayName("returns INVALID result")
   class ReturnsInvalidResult {
+
+    @BeforeEach
+    void setup() {
+      reset(findCreditSegment);
+    }
 
     @Test
     @DisplayName("with SSN error message, when invalid SSN provided")
@@ -183,6 +249,18 @@ class LoanEligibilityCalculationTest {
             .create()
         );
     }
+  }
+
+  private void whenCreditSegmentFoundForPerson(String withSsn, CreditSegmentType segmentType, int creditModifier) {
+    SocialSecurityNumber ssn = new SocialSecurityNumber(withSsn);
+    when(findCreditSegment.forPerson(ssn))
+      .thenReturn(Optional.of(new CreditSegment(ssn, segmentType, creditModifier)));
+  }
+
+  private void whenCreditSegmentNotFoundForPerson(String withSsn) {
+    SocialSecurityNumber ssn = new SocialSecurityNumber(withSsn);
+    when(findCreditSegment.forPerson(ssn))
+      .thenReturn(empty());
   }
 
   private static final String DEFAULT_SSN = "49002010965";
