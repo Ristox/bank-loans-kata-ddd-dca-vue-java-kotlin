@@ -25,11 +25,11 @@ no available loan amount, for requested period
 
 #### Subtasks
 
-* **\[ O ] BANK-04-A: simple storage for personalized credit segments**
+* **\[ OK ] BANK-04-A: simple storage for personalized credit segments**
     * Implement a domain gateway + an in-memory adapter with described personalized  
       credit segments for each specified personal code (SSN)
 
-* **\[ _ ] BANK-04-B: personalized credit score calculation **
+* **\[ O ] BANK-04-B: personalized credit score calculation **
     * implement credit score calculation which utilizes the personal credit segment  
       gateway and requested loan data
     * return a DENIED eligibility result for any personal code (SSN) which has no  
