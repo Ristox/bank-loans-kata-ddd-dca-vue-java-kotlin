@@ -24,20 +24,20 @@
    loan amount and period, which is independent of a given loan applicant's SSN.
 
 
-### [\[ O \] BANK-04: Personalized loan eligibility result](backlog/___ONGOING__BANK-04.md)
+### [\[ OK \] BANK-04: Personalized loan eligibility result](backlog/__DONE______BANK-04.md)
 
   As a user, I want to be able to submit valid personal code (SSN), loan amount (in Euros)  
   and period (in months), and receive a personal credit result, which is calculated based on  
   the credit score for given loan applicant.
 
 
-### [\[ _ \] BANK-05: Personalized loan eligibility result, with maximum allowed loan amount details](backlog/____TODO____BANK-05.md)
+### [\[ O \] BANK-05: Personalized loan eligibility result, with maximum allowed loan amount details](backlog/___ONGOING__BANK-05.md)
 
    As a user, I want to be able to submit valid personal code (SSN), loan amount (in Euros)  
    and period (in months) - and receive a personal credit result, which is calculated  
    based on the credit score for given loan applicant. 
 
-   This should be calculated based on the requirements described in [BANK-04](backlog/___ONGOING__BANK-04.md) - however,  
+   This should be calculated based on the requirements described in [BANK-04](backlog/__DONE______BANK-04.md) - however,  
    now I should additionally receive details of maximum available loan amount
 
 
