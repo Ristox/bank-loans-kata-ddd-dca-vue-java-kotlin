@@ -9,6 +9,7 @@ import ee.rsx.kata.bank.loans.validation.ValidateSocialSecurityNumber;
 import ee.rsx.kata.bank.loans.validation.ValidationLimitsDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -79,106 +80,110 @@ class LoanEligibilityCalculationTest {
       .isEqualTo(expectedResult(APPROVED).create());
   }
 
-  @Test
-  @DisplayName("returns INVALID result with SSN error message, when invalid SSN provided")
-  void returns_INVALID_result_with_ssnErrorMessage_whenInvalidSsnProvided() {
-    String invalidSsn = "49002010966";
-    whenSsnValidationFailsFor(invalidSsn);
-    LoanEligibilityRequestDTO invalidRequest = testRequest().ssn(invalidSsn).create();
+  @Nested
+  @DisplayName("returns INVALID result")
+  class ReturnsInvalidResult {
 
-    LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
+    @Test
+    @DisplayName("with SSN error message, when invalid SSN provided")
+    void with_ssnErrorMessage_whenInvalidSsnProvided() {
+      String invalidSsn = "49002010966";
+      whenSsnValidationFailsFor(invalidSsn);
+      LoanEligibilityRequestDTO invalidRequest = testRequest().ssn(invalidSsn).create();
 
-    assertThat(result).isEqualTo(
-      expectedResult(INVALID).ssn(invalidSsn).errors("SSN is not valid").create()
-    );
-  }
+      LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
 
-  private void whenSsnValidationFailsFor(String invalidSsn) {
-    when(validateSocialSecurityNumber.on(invalidSsn)).thenReturn(invalidResultWith(invalidSsn));
-  }
-
-  @Test
-  @DisplayName("returns INVALID result with error message on too small loan amount, when too small loan amount provided")
-  void returns_INVALID_result_with_loanAmountTooSmallMessage_whenTooSmallLoanAmountProvided() {
-    Integer tooSmallLoanAmount = MINIMUM_REQUIRED_LOAN_AMOUNT - 1;
-    LoanEligibilityRequestDTO invalidRequest = testRequest().amount(tooSmallLoanAmount).create();
-
-    LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
-
-    assertThat(result).isEqualTo(
-      expectedResult(INVALID).amount(tooSmallLoanAmount).errors("Loan amount is less than minimum required").create()
-    );
-  }
-
-  @Test
-  @DisplayName("returns INVALID result with error message on too large loan amount, when too large loan amount provided")
-  void returns_INVALID_result_with_loanAmountTooLargeMessage_whenTooLargeLoanAmountProvided() {
-    Integer tooLargeLoanAmount = MAXIMUM_ALLOWED_LOAN_AMOUNT + 1;
-    LoanEligibilityRequestDTO invalidRequest = testRequest().amount(tooLargeLoanAmount).create();
-
-    LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
-
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(INVALID).amount(tooLargeLoanAmount).errors("Loan amount is more than maximum allowed").create()
+      assertThat(result).isEqualTo(
+        expectedResult(INVALID).ssn(invalidSsn).errors("SSN is not valid").create()
       );
-  }
+    }
 
-  @Test
-  @DisplayName("returns INVALID result with error message on too small loan period, when too small loan period provided")
-  void returns_INVALID_result_with_loanPeriodTooSmallMessage_whenTooSmallLoanPeriodProvided() {
-    Integer tooSmallLoanPeriod = MINIMUM_REQUIRED_LOAN_PERIOD - 1;
-    LoanEligibilityRequestDTO invalidRequest = testRequest().period(tooSmallLoanPeriod).create();
+    private void whenSsnValidationFailsFor(String invalidSsn) {
+      when(validateSocialSecurityNumber.on(invalidSsn)).thenReturn(invalidResultWith(invalidSsn));
+    }
 
-    LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
+    @Test
+    @DisplayName("with error message on too small loan amount, when too small loan amount provided")
+    void with_loanAmountTooSmallMessage_whenTooSmallLoanAmountProvided() {
+      Integer tooSmallLoanAmount = MINIMUM_REQUIRED_LOAN_AMOUNT - 1;
+      LoanEligibilityRequestDTO invalidRequest = testRequest().amount(tooSmallLoanAmount).create();
 
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(INVALID).period(tooSmallLoanPeriod).errors("Loan period is less than minimum required").create()
+      LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
+
+      assertThat(result).isEqualTo(
+        expectedResult(INVALID).amount(tooSmallLoanAmount).errors("Loan amount is less than minimum required").create()
       );
+    }
+
+    @Test
+    @DisplayName("with error message on too large loan amount, when too large loan amount provided")
+    void with_loanAmountTooLargeMessage_whenTooLargeLoanAmountProvided() {
+      Integer tooLargeLoanAmount = MAXIMUM_ALLOWED_LOAN_AMOUNT + 1;
+      LoanEligibilityRequestDTO invalidRequest = testRequest().amount(tooLargeLoanAmount).create();
+
+      LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
+
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(INVALID).amount(tooLargeLoanAmount).errors("Loan amount is more than maximum allowed").create()
+        );
+    }
+
+    @Test
+    @DisplayName("with error message on too small loan period, when too small loan period provided")
+    void with_loanPeriodTooSmallMessage_whenTooSmallLoanPeriodProvided() {
+      Integer tooSmallLoanPeriod = MINIMUM_REQUIRED_LOAN_PERIOD - 1;
+      LoanEligibilityRequestDTO invalidRequest = testRequest().period(tooSmallLoanPeriod).create();
+
+      LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
+
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(INVALID).period(tooSmallLoanPeriod).errors("Loan period is less than minimum required").create()
+        );
+    }
+
+    @Test
+    @DisplayName("with error message on too large loan period, when too big loan period provided")
+    void with_loanPeriodTooLargeMessage_whenTooLargeLoanPeriodProvided() {
+      Integer tooLargeLoanPeriod = MAXIMUM_ALLOWED_LOAN_PERIOD + 1;
+      LoanEligibilityRequestDTO invalidRequest = testRequest().period(tooLargeLoanPeriod).create();
+
+      LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
+
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(INVALID).period(tooLargeLoanPeriod).errors("Loan period is more than maximum allowed").create()
+        );
+    }
+
+    @Test
+    @DisplayName("with several error messages, when eligibility result contains several invalid details")
+    void with_severalErrorMessages_whenEligibilityResult_contains_severalInvalidDetails() {
+      String invalidSsn = "49002010966";
+      whenSsnValidationFailsFor(invalidSsn);
+      Integer tooSmallLoanAmount = MINIMUM_REQUIRED_LOAN_AMOUNT - 1;
+      Integer tooLargeLoanPeriod = MAXIMUM_ALLOWED_LOAN_PERIOD + 1;
+      LoanEligibilityRequestDTO invalidRequest =
+        testRequest().ssn(invalidSsn).amount(tooSmallLoanAmount).period(tooLargeLoanPeriod).create();
+
+      LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
+
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(INVALID)
+            .ssn(invalidSsn)
+            .amount(tooSmallLoanAmount)
+            .period(tooLargeLoanPeriod)
+            .errors(
+              "SSN is not valid",
+              "Loan amount is less than minimum required",
+              "Loan period is more than maximum allowed"
+            )
+            .create()
+        );
+    }
   }
-
-  @Test
-  @DisplayName("returns INVALID result with error message on too large loan period, when too big loan period provided")
-  void returns_INVALID_result_with_loanPeriodTooLargeMessage_whenTooLargeLoanPeriodProvided() {
-    Integer tooLargeLoanPeriod = MAXIMUM_ALLOWED_LOAN_PERIOD + 1;
-    LoanEligibilityRequestDTO invalidRequest = testRequest().period(tooLargeLoanPeriod).create();
-
-    LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
-
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(INVALID).period(tooLargeLoanPeriod).errors("Loan period is more than maximum allowed").create()
-      );
-  }
-
-  @Test
-  @DisplayName("returns INVALID result with several error messages, when eligibility result contains several invalid details")
-  void returns_INVALID_result_with_severalErrorMessages_whenEligibilityResult_contains_severalInvalidDetails() {
-    String invalidSsn = "49002010966";
-    whenSsnValidationFailsFor(invalidSsn);
-    Integer tooSmallLoanAmount = MINIMUM_REQUIRED_LOAN_AMOUNT - 1;
-    Integer tooLargeLoanPeriod = MAXIMUM_ALLOWED_LOAN_PERIOD + 1;
-    LoanEligibilityRequestDTO invalidRequest =
-      testRequest().ssn(invalidSsn).amount(tooSmallLoanAmount).period(tooLargeLoanPeriod).create();
-
-    LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
-
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(INVALID)
-          .ssn(invalidSsn)
-          .amount(tooSmallLoanAmount)
-          .period(tooLargeLoanPeriod)
-          .errors(
-            "SSN is not valid",
-            "Loan amount is less than minimum required",
-            "Loan period is more than maximum allowed"
-          )
-          .create()
-      );
-  }
-
 
   private static final String DEFAULT_SSN = "49002010965";
   private static final Integer DEFAULT_AMOUNT = 4500;
