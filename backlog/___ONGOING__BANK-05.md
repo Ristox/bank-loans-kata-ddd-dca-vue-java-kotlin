@@ -28,8 +28,8 @@ I should additionally receive -
       which would instead result in credit score greater than 1, eg loan approval.  
       Therefore, this is the "highest available loan amount", which in current case shall be  
       less than requested amount
-   * in loan eligibility calculations, when credit score is more than 1, calculate the lowest loan amount
-      which would instead result in credit score greater than 1, eg loan approval.  
+   * in loan eligibility calculations, when credit score is more than 1, calculate the highest loan amount
+      which would instead result in credit score of 1 or less, eg loan denial.  
       Therefore, this is the "highest available loan amount", which in current case shall be  
       more than requested amount
     * add the calculated amount as "highest available loan amount" to result and show in UI
