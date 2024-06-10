@@ -9,6 +9,7 @@ import ee.rsx.kata.bank.loans.validation.ValidateSocialSecurityNumber;
 import ee.rsx.kata.bank.loans.validation.ValidationLimitsDTO;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Named;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
@@ -20,18 +21,11 @@ import static java.util.Optional.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Named
+@RequiredArgsConstructor
 class LoanEligibilityCalculation implements CalculateLoanEligibility {
 
   private final ValidateSocialSecurityNumber validateSocialSecurityNumber;
   private final LoadValidationLimits loadValidationLimits;
-
-  LoanEligibilityCalculation(
-    ValidateSocialSecurityNumber validateSocialSecurityNumber,
-    LoadValidationLimits loadValidationLimits
-  ) {
-    this.validateSocialSecurityNumber = validateSocialSecurityNumber;
-    this.loadValidationLimits = loadValidationLimits;
-  }
 
   @Override
   public LoanEligibilityResultDTO on(LoanEligibilityRequestDTO eligibilityRequest) {

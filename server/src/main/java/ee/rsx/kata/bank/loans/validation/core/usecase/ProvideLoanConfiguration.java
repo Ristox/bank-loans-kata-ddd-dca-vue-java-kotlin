@@ -5,8 +5,10 @@ import ee.rsx.kata.bank.loans.validation.ValidationLimitsDTO;
 import ee.rsx.kata.bank.loans.validation.core.domain.LoanConfigGateway;
 import ee.rsx.kata.bank.loans.validation.core.domain.LoanLimitsConfig;
 import jakarta.inject.Named;
+import lombok.RequiredArgsConstructor;
 
 @Named
+@RequiredArgsConstructor
 class ProvideLoanConfiguration implements LoadValidationLimits {
 
   private static ValidationLimitsDTO toDto(LoanLimitsConfig config) {
@@ -19,10 +21,6 @@ class ProvideLoanConfiguration implements LoadValidationLimits {
   }
 
   private final LoanConfigGateway gateway;
-
-  ProvideLoanConfiguration(LoanConfigGateway gateway) {
-    this.gateway = gateway;
-  }
 
   @Override
   public ValidationLimitsDTO invoke() {
