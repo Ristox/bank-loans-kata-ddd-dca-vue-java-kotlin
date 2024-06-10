@@ -6,7 +6,7 @@
     - with fields for a personal code (SSN), loan amount (in Euros) and loan period (in months)  
     - so that I can enter my desired loan information, currently without any restrictions
 
-### [\[ O \] BANK-02: Requested loan parameters validation](backlog/___ONGOING__BANK-02.md)
+### [\[ OK \] BANK-02: Requested loan parameters validation](backlog/__DONE______BANK-02.md)
 
    As a user, I want to enter loan applicant's personal code (SSN), loan amount (in Euros)  
    and period (in months), and immediately understand whether the provided values are valid  
