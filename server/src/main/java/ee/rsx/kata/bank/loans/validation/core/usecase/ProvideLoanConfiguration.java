@@ -26,7 +26,7 @@ class ProvideLoanConfiguration implements LoadValidationLimits {
 
   @Override
   public ValidationLimitsDTO invoke() {
-    LoanLimitsConfig limitsConfig = gateway.loadLimits();
+    var limitsConfig = gateway.loadLimits();
 
     return toDto(limitsConfig);
   }

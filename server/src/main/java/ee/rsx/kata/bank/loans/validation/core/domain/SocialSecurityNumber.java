@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
@@ -18,6 +19,9 @@ public record SocialSecurityNumber(String value) {
   private static final Pattern SSN_PATTERN = compile("^[0-9]\\d{2}[0-1]\\d{7}$");
   private static final DateTimeFormatter SSN_DATE_FORMAT = ofPattern("yyyyMMdd");
 
+  private static final int[] DEFAULT_CHECKSUM_MULTIPLIERS = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 1};
+  private static final int[] RECALCULATED_CHECKSUM_MULTIPLIERS = new int[]{3, 4, 5, 6, 7, 8, 9, 1, 2, 3};
+
   /**
    * @throws IllegalArgumentException when provided SSN value is invalid (does not correspond to Estonian SSN rules)
    * @throws IllegalStateException when century prefix of provided SSN value is invalid (not between 1...6)
@@ -29,7 +33,7 @@ public record SocialSecurityNumber(String value) {
   }
 
   private void validate() {
-    boolean isValid =
+    var isValid =
       SSN_PATTERN.matcher(value).matches() &&
       isValidBirthDate() &&
       calculateChecksum() == parseChecksumAtTheEnd();
@@ -40,13 +44,13 @@ public record SocialSecurityNumber(String value) {
   }
 
   private boolean isValidBirthDate() {
-    LocalDate birthDate = parseBirthDate();
+    var birthDate = parseBirthDate();
     return birthDate.isEqual(now()) || birthDate.isBefore(now());
   }
 
   private LocalDate parseBirthDate() {
     var date = value.substring(1, 7);
-    String century = value.substring(0, 1);
+    var century = value.substring(0, 1);
     date = switch (century) {
       case "1", "2" -> "18" + date;
       case "3", "4" -> "19" + date;
@@ -59,31 +63,25 @@ public record SocialSecurityNumber(String value) {
   }
 
   private int calculateChecksum() {
-    int[] multipliers = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 1};
+    Supplier<Integer> recalculation =
+      () -> calculateChecksumUsing(RECALCULATED_CHECKSUM_MULTIPLIERS, () -> 0);
 
-    int total = totalOfEachSsnNumberMultipliedWith(multipliers);
-    var modulus = total % 11;
-    if (isDoubleDigit(modulus)) {
-      modulus = recalculateChecksumSpecialCase();
-    }
-    return modulus;
+    return calculateChecksumUsing(DEFAULT_CHECKSUM_MULTIPLIERS, recalculation);
   }
 
+  private int calculateChecksumUsing(int[] multipliers, Supplier<Integer> recalculatedChecksum) {
+    var total = totalOfEachSsnNumberMultipliedWith(multipliers);
 
-  private int recalculateChecksumSpecialCase() {
-    int[] multipliers = new int[]{3, 4, 5, 6, 7, 8, 9, 1, 2, 3};
-
-    int total = totalOfEachSsnNumberMultipliedWith(multipliers);
     var modulus = total % 11;
     if (isDoubleDigit(modulus)) {
-      modulus = 0;
+      modulus = recalculatedChecksum.get();
     }
 
     return modulus;
   }
 
   private int totalOfEachSsnNumberMultipliedWith(int[] multipliers) {
-    AtomicInteger total = new AtomicInteger();
+    var total = new AtomicInteger();
 
     IntStream
       .range(0, value.length() - 1)

@@ -16,13 +16,12 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
-import java.util.Arrays;
 import java.util.List;
 
 import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
 import static ee.rsx.kata.bank.loans.validation.SsnValidationResultDTO.*;
 import static java.util.Arrays.stream;
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -260,6 +259,4 @@ class LoanEligibilityCalculationTest {
       return new LoanEligibilityResultDTO(this.status, this.errors, this.ssn, this.amount, this.period);
     }
   }
-
-
 }

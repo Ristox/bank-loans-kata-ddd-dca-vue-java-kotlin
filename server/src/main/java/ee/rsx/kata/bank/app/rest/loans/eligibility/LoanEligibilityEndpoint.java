@@ -26,15 +26,15 @@ public class LoanEligibilityEndpoint {
   public ResponseEntity<LoanEligibilityResultDTO> calculateLoanEligibility(
     @RequestBody LoanEligibilityRequestDTO request
   ) {
-    LoanEligibilityResultDTO eligibility = calculateLoanEligibility.on(request);
+    var eligibility = calculateLoanEligibility.on(request);
 
-    HttpStatus status = switch (eligibility.result()) {
+    var httpStatus = switch (eligibility.result()) {
       case APPROVED -> OK;
       case INVALID -> BAD_REQUEST;
       case DENIED -> NOT_ACCEPTABLE;
     };
 
-    return status(status)
+    return status(httpStatus)
       .contentType(APPLICATION_JSON)
       .body(eligibility);
   }

@@ -15,7 +15,7 @@ class SsnValidation implements ValidateSocialSecurityNumber {
   @Override
   public SsnValidationResultDTO on(String ssn) {
     try {
-      SocialSecurityNumber validSsn = new SocialSecurityNumber(ssn);
+      var validSsn = new SocialSecurityNumber(ssn);
       return okResultWith(validSsn.value());
     } catch (IllegalArgumentException | IllegalStateException | DateTimeParseException e) {
       return invalidResultWith(ssn);

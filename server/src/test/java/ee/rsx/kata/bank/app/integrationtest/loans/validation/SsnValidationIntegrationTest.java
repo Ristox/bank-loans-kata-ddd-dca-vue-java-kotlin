@@ -26,8 +26,8 @@ public class SsnValidationIntegrationTest {
   @Test
   @DisplayName("returns OK result for valid provided SSN")
   void returns_OK_result_forValidProvidedSsn() throws Exception {
-    String validProvidedSsn = "49002010965";
-    String expectedOkResult = "OK";
+    var validProvidedSsn = "49002010965";
+    var expectedOkResult = "OK";
 
     mockMvc.perform(get(
         format(SSN_VALIDATION_URL, validProvidedSsn)
@@ -48,8 +48,8 @@ public class SsnValidationIntegrationTest {
   @Test
   @DisplayName("returns INVALID result for invalid provided SSN")
   void returns_INVALID_result_forInvalidProvidedSsn() throws Exception {
-    String invalidProvidedSsn = "89002010965";
-    String expectedInvalidResult = "INVALID";
+    var invalidProvidedSsn = "89002010965";
+    var expectedInvalidResult = "INVALID";
 
     mockMvc.perform(get(
         format(SSN_VALIDATION_URL, invalidProvidedSsn)

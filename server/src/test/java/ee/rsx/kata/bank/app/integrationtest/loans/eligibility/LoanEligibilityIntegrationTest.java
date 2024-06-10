@@ -28,14 +28,14 @@ public class LoanEligibilityIntegrationTest {
   @Test
   @DisplayName("returns an APPROVED eligibility result for the provided loan request")
   void returns_APPROVED_result_forProvidedLoanRequest() throws Exception {
-    String loanEligibilityRequest = """
+    var loanEligibilityRequest = """
         {
           "ssn": "49002010965",
           "loanAmount": 4500,
           "loanPeriodMonths": 36
         }
       """;
-    MockHttpServletRequestBuilder postRequest =
+    var postRequest =
       post(LOAN_ELIGIBILITY_URL)
         .contentType(APPLICATION_JSON)
         .content(loanEligibilityRequest);
@@ -59,10 +59,10 @@ public class LoanEligibilityIntegrationTest {
   @Test
   @DisplayName("returns an INVALID result with validation error details, for an invalid loan request")
   void returns_INVALID_result_with_validationErrorDetails_forInvalidLoanRequest() throws Exception {
-    String ssnWithInvalidChecksum = "49002010968";
-    Integer tooSmallLoanAmount = 1500;
-    Integer tooLargeLoanPeriod = 61;
-    String loanEligibilityRequest = """
+    var ssnWithInvalidChecksum = "49002010968";
+    var tooSmallLoanAmount = 1500;
+    var tooLargeLoanPeriod = 61;
+    var loanEligibilityRequest = """
         {
           "ssn": "%s",
           "loanAmount": %s,
@@ -70,7 +70,7 @@ public class LoanEligibilityIntegrationTest {
         }
       """.formatted(ssnWithInvalidChecksum, tooSmallLoanAmount, tooLargeLoanPeriod);
 
-    MockHttpServletRequestBuilder postRequest =
+    var postRequest =
       post(LOAN_ELIGIBILITY_URL)
         .contentType(APPLICATION_JSON)
         .content(loanEligibilityRequest);

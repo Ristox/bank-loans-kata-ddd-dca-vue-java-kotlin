@@ -11,10 +11,8 @@ import ee.rsx.kata.bank.loans.validation.ValidationStatus;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Named;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
@@ -52,7 +50,7 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
   }
 
   private @Nullable List<String> validate(LoanEligibilityRequestDTO eligibilityRequest) {
-    ValidationLimitsDTO limits = loadValidationLimits.invoke();
+    var limits = loadValidationLimits.invoke();
 
     List<String> errors = Stream.of(
         checkForSsnErrorIn(eligibilityRequest),
@@ -67,13 +65,13 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
   }
 
   private Optional<String> checkForSsnErrorIn(LoanEligibilityRequestDTO request) {
-    ValidationStatus ssnValidity = validateSocialSecurityNumber.on(request.ssn()).status();
+    var ssnValidity = validateSocialSecurityNumber.on(request.ssn()).status();
 
     return ssnValidity == OK ? empty() : of("SSN is not valid");
   }
 
   private Optional<String> checkForAmountErrorIn(LoanEligibilityRequestDTO request, ValidationLimitsDTO limits) {
-    Integer amount = request.loanAmount();
+    var amount = request.loanAmount();
     if (amount < limits.minimumLoanAmount()) {
       return of("Loan amount is less than minimum required");
     }
@@ -84,7 +82,7 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
   }
 
   private Optional<String> checkForPeriodErrorIn(LoanEligibilityRequestDTO request, ValidationLimitsDTO limits) {
-    Integer period = request.loanPeriodMonths();
+    var period = request.loanPeriodMonths();
     if (period < limits.minimumLoanPeriodMonths()) {
       return of("Loan period is less than minimum required");
     }
