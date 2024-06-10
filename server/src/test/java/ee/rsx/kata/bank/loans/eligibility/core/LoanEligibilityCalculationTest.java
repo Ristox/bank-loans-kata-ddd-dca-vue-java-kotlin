@@ -16,11 +16,13 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.stubbing.Answer;
 
+import java.util.Arrays;
 import java.util.List;
 
 import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
 import static ee.rsx.kata.bank.loans.validation.SsnValidationResultDTO.*;
-import static org.assertj.core.api.Assertions.assertThat;
+import static java.util.Arrays.stream;
+import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -70,12 +72,12 @@ class LoanEligibilityCalculationTest {
   @Test
   @DisplayName("returns APPROVED result along with provided valid eligibility request data")
   void returns_APPROVED_result_with_providedValidEligibilityRequestData() {
-    LoanEligibilityRequestDTO validRequest = new LoanEligibilityRequestDTO("49002010965", 4500, 36);
+    LoanEligibilityRequestDTO validRequest = testRequest().create();
 
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
 
     assertThat(result)
-      .isEqualTo(new LoanEligibilityResultDTO(APPROVED, null, "49002010965", 4500, 36));
+      .isEqualTo(expectedResult(APPROVED).create());
   }
 
   @Test
@@ -83,12 +85,13 @@ class LoanEligibilityCalculationTest {
   void returns_INVALID_result_with_ssnErrorMessage_whenInvalidSsnProvided() {
     String invalidSsn = "49002010966";
     whenSsnValidationFailsFor(invalidSsn);
-    LoanEligibilityRequestDTO invalidRequest = new LoanEligibilityRequestDTO(invalidSsn, 4500, 36);
+    LoanEligibilityRequestDTO invalidRequest = testRequest().ssn(invalidSsn).create();
 
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
 
-    assertThat(result)
-      .isEqualTo(new LoanEligibilityResultDTO(INVALID, List.of("SSN is not valid"), invalidSsn, 4500, 36));
+    assertThat(result).isEqualTo(
+      expectedResult(INVALID).ssn(invalidSsn).errors("SSN is not valid").create()
+    );
   }
 
   private void whenSsnValidationFailsFor(String invalidSsn) {
@@ -99,27 +102,26 @@ class LoanEligibilityCalculationTest {
   @DisplayName("returns INVALID result with error message on too small loan amount, when too small loan amount provided")
   void returns_INVALID_result_with_loanAmountTooSmallMessage_whenTooSmallLoanAmountProvided() {
     Integer tooSmallLoanAmount = MINIMUM_REQUIRED_LOAN_AMOUNT - 1;
-    LoanEligibilityRequestDTO invalidRequest = new LoanEligibilityRequestDTO("49002010965", tooSmallLoanAmount, 36);
+    LoanEligibilityRequestDTO invalidRequest = testRequest().amount(tooSmallLoanAmount).create();
 
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
 
-    assertThat(result)
-      .isEqualTo(
-        new LoanEligibilityResultDTO(INVALID, List.of("Loan amount is less than minimum required"), "49002010965", tooSmallLoanAmount, 36)
-      );
+    assertThat(result).isEqualTo(
+      expectedResult(INVALID).amount(tooSmallLoanAmount).errors("Loan amount is less than minimum required").create()
+    );
   }
 
   @Test
   @DisplayName("returns INVALID result with error message on too large loan amount, when too large loan amount provided")
   void returns_INVALID_result_with_loanAmountTooLargeMessage_whenTooLargeLoanAmountProvided() {
     Integer tooLargeLoanAmount = MAXIMUM_ALLOWED_LOAN_AMOUNT + 1;
-    LoanEligibilityRequestDTO invalidRequest = new LoanEligibilityRequestDTO("49002010965", tooLargeLoanAmount, 36);
+    LoanEligibilityRequestDTO invalidRequest = testRequest().amount(tooLargeLoanAmount).create();
 
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
 
     assertThat(result)
       .isEqualTo(
-        new LoanEligibilityResultDTO(INVALID, List.of("Loan amount is more than maximum allowed"), "49002010965", tooLargeLoanAmount, 36)
+        expectedResult(INVALID).amount(tooLargeLoanAmount).errors("Loan amount is more than maximum allowed").create()
       );
   }
 
@@ -127,13 +129,13 @@ class LoanEligibilityCalculationTest {
   @DisplayName("returns INVALID result with error message on too small loan period, when too small loan period provided")
   void returns_INVALID_result_with_loanPeriodTooSmallMessage_whenTooSmallLoanPeriodProvided() {
     Integer tooSmallLoanPeriod = MINIMUM_REQUIRED_LOAN_PERIOD - 1;
-    LoanEligibilityRequestDTO invalidRequest = new LoanEligibilityRequestDTO("49002010965", 4500, tooSmallLoanPeriod);
+    LoanEligibilityRequestDTO invalidRequest = testRequest().period(tooSmallLoanPeriod).create();
 
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
 
     assertThat(result)
       .isEqualTo(
-        new LoanEligibilityResultDTO(INVALID, List.of("Loan period is less than minimum required"), "49002010965", 4500, tooSmallLoanPeriod)
+        expectedResult(INVALID).period(tooSmallLoanPeriod).errors("Loan period is less than minimum required").create()
       );
   }
 
@@ -141,13 +143,13 @@ class LoanEligibilityCalculationTest {
   @DisplayName("returns INVALID result with error message on too large loan period, when too big loan period provided")
   void returns_INVALID_result_with_loanPeriodTooLargeMessage_whenTooLargeLoanPeriodProvided() {
     Integer tooLargeLoanPeriod = MAXIMUM_ALLOWED_LOAN_PERIOD + 1;
-    LoanEligibilityRequestDTO invalidRequest = new LoanEligibilityRequestDTO("49002010965", 4500, tooLargeLoanPeriod);
+    LoanEligibilityRequestDTO invalidRequest = testRequest().period(tooLargeLoanPeriod).create();
 
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
 
     assertThat(result)
       .isEqualTo(
-        new LoanEligibilityResultDTO(INVALID, List.of("Loan period is more than maximum allowed"), "49002010965", 4500, tooLargeLoanPeriod)
+        expectedResult(INVALID).period(tooLargeLoanPeriod).errors("Loan period is more than maximum allowed").create()
       );
   }
 
@@ -158,22 +160,106 @@ class LoanEligibilityCalculationTest {
     whenSsnValidationFailsFor(invalidSsn);
     Integer tooSmallLoanAmount = MINIMUM_REQUIRED_LOAN_AMOUNT - 1;
     Integer tooLargeLoanPeriod = MAXIMUM_ALLOWED_LOAN_PERIOD + 1;
-    LoanEligibilityRequestDTO invalidRequest = new LoanEligibilityRequestDTO(invalidSsn, tooSmallLoanAmount, tooLargeLoanPeriod);
+    LoanEligibilityRequestDTO invalidRequest =
+      testRequest().ssn(invalidSsn).amount(tooSmallLoanAmount).period(tooLargeLoanPeriod).create();
 
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(invalidRequest);
 
     assertThat(result)
       .isEqualTo(
-        new LoanEligibilityResultDTO(
-          INVALID,
-          List.of(
+        expectedResult(INVALID)
+          .ssn(invalidSsn)
+          .amount(tooSmallLoanAmount)
+          .period(tooLargeLoanPeriod)
+          .errors(
             "SSN is not valid",
             "Loan amount is less than minimum required",
             "Loan period is more than maximum allowed"
-          ),
-          invalidSsn,
-          tooSmallLoanAmount,
-          tooLargeLoanPeriod)
+          )
+          .create()
       );
   }
+
+
+  private static final String DEFAULT_SSN = "49002010965";
+  private static final Integer DEFAULT_AMOUNT = 4500;
+  private static final Integer DEFAULT_PERIOD = 36;
+
+  private static DefaultTestRequest testRequest() {
+    return new DefaultTestRequest();
+  }
+
+  static class DefaultTestRequest {
+
+    private String ssn = DEFAULT_SSN;
+    private Integer amount = DEFAULT_AMOUNT;
+    private Integer period = DEFAULT_PERIOD;
+
+    public DefaultTestRequest ssn(String value) {
+      this.ssn = value;
+      return this;
+    }
+
+    public DefaultTestRequest amount(Integer value) {
+      this.amount = value;
+      return this;
+    }
+
+    public DefaultTestRequest period(Integer value) {
+      this.period = value;
+      return this;
+    }
+
+    public LoanEligibilityRequestDTO create() {
+      return new LoanEligibilityRequestDTO(this.ssn, this.amount, this.period);
+    }
+  }
+
+  private static DefaultTestResult expectedResult() {
+    return new DefaultTestResult();
+  }
+
+  private static DefaultTestResult expectedResult(LoanEligibilityStatus withStatus) {
+    return expectedResult().status(withStatus);
+  }
+
+  static class DefaultTestResult {
+
+    private LoanEligibilityStatus status = APPROVED;
+    private List<String> errors = null;
+    private String ssn = DEFAULT_SSN;
+    private Integer amount = DEFAULT_AMOUNT;
+    private Integer period = DEFAULT_PERIOD;
+
+    public DefaultTestResult status(LoanEligibilityStatus value) {
+      this.status = value;
+      return this;
+    }
+
+    public DefaultTestResult errors(String... errors) {
+      this.errors = stream(errors).toList();
+      return this;
+    }
+
+    public DefaultTestResult ssn(String value) {
+      this.ssn = value;
+      return this;
+    }
+
+    public DefaultTestResult amount(Integer value) {
+      this.amount = value;
+      return this;
+    }
+
+    public DefaultTestResult period(Integer value) {
+      this.period = value;
+      return this;
+    }
+
+    public LoanEligibilityResultDTO create() {
+      return new LoanEligibilityResultDTO(this.status, this.errors, this.ssn, this.amount, this.period);
+    }
+  }
+
+
 }
