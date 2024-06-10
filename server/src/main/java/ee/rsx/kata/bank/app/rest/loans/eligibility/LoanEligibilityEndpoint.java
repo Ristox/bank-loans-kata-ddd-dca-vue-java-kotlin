@@ -3,10 +3,15 @@ package ee.rsx.kata.bank.app.rest.loans.eligibility;
 import ee.rsx.kata.bank.loans.eligibility.CalculateLoanEligibility;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
-import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import static org.springframework.http.HttpStatus.*;
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+import static org.springframework.http.ResponseEntity.status;
 
 @RestController
 public class LoanEligibilityEndpoint {
@@ -18,10 +23,21 @@ public class LoanEligibilityEndpoint {
   }
 
   @PostMapping(value = "/loans/eligibility")
-  public LoanEligibilityResultDTO calculateLoanEligibility(
+  public ResponseEntity<LoanEligibilityResultDTO> calculateLoanEligibility(
     @RequestBody LoanEligibilityRequestDTO request
   ) {
-    return calculateLoanEligibility.on(request);
+    LoanEligibilityResultDTO eligibility = calculateLoanEligibility.on(request);
+
+    HttpStatus status = switch (eligibility.result()) {
+      case APPROVED -> OK;
+      case INVALID -> BAD_REQUEST;
+      case DENIED -> NOT_ACCEPTABLE;
+    };
+
+    return status(status)
+      .contentType(APPLICATION_JSON)
+      .body(eligibility);
   }
 }
+
 

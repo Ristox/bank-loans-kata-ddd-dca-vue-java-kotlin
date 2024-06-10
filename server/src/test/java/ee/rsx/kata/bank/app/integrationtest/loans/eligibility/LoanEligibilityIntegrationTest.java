@@ -27,7 +27,7 @@ public class LoanEligibilityIntegrationTest {
 
   @Test
   @DisplayName("returns an APPROVED eligibility result for the provided loan request")
-  void returns_approved_result_forProvidedLoanRequest() throws Exception {
+  void returns_APPROVED_result_forProvidedLoanRequest() throws Exception {
     String loanEligibilityRequest = """
         {
           "ssn": "49002010965",
@@ -52,6 +52,46 @@ public class LoanEligibilityIntegrationTest {
                 "loanPeriodMonths": 36
               }
             """
+        )
+      );
+  }
+
+  @Test
+  @DisplayName("returns an INVALID result with validation error details, for an invalid loan request")
+  void returns_INVALID_result_with_validationErrorDetails_forInvalidLoanRequest() throws Exception {
+    String ssnWithInvalidChecksum = "49002010968";
+    Integer tooSmallLoanAmount = 1500;
+    Integer tooLargeLoanPeriod = 61;
+    String loanEligibilityRequest = """
+        {
+          "ssn": "%s",
+          "loanAmount": %s,
+          "loanPeriodMonths": %s
+        }
+      """.formatted(ssnWithInvalidChecksum, tooSmallLoanAmount, tooLargeLoanPeriod);
+
+    MockHttpServletRequestBuilder postRequest =
+      post(LOAN_ELIGIBILITY_URL)
+        .contentType(APPLICATION_JSON)
+        .content(loanEligibilityRequest);
+
+    mockMvc.perform(postRequest)
+      .andExpect(status().isBadRequest())
+      .andExpect(
+        content().json(
+          """
+              {
+                "result": "INVALID",
+                "errors": [
+                  "SSN is not valid",
+                  "Loan amount is less than minimum required",
+                  "Loan period is more than maximum allowed"
+                ],
+                "ssn": "%s",
+                "loanAmount": %s,
+                "loanPeriodMonths": %s
+              }
+            """.formatted(ssnWithInvalidChecksum, tooSmallLoanAmount, tooLargeLoanPeriod)
         )
       );
   }
