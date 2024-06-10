@@ -1,8 +1,11 @@
 import SsnValidationResult from "../models/SsnValidationResult";
 import ValidationLimits from "../models/ValidationLimits";
+import LoanRequest from "../models/LoanRequest";
+import LoanEligibilityResult from "../models/LoanEligibilityResult";
 
 const SERVER_URL = '/api'
 const LOANS_VALIDATION_URL = '/loans/validation'
+const LOANS_ELIGIBILITY_URL = '/loans/eligibility'
 
 export const COMPLETE_SSN_LENGTH = 11
 
@@ -35,6 +38,22 @@ class Server {
 
     async loadValidationLimits(): Promise<ValidationLimits> {
         const response = await fetch(`${SERVER_URL}${LOANS_VALIDATION_URL}/limits`);
+        return await response.json()
+    }
+
+    async calculateEligibilityFor(loanRequest: LoanRequest): Promise<LoanEligibilityResult> {
+        const response = await fetch(
+            `${SERVER_URL}${LOANS_ELIGIBILITY_URL}`,
+            {
+              method: 'POST',
+                headers: {
+                  'Accept': 'application/json',
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(loanRequest)
+              }
+            );
+
         return await response.json()
     }
 }
