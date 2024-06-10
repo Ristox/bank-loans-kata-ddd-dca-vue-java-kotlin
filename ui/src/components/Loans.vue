@@ -3,19 +3,19 @@
     <div class="card card-container">
       <Form @submit="doSubmit" :validation-schema="schema">
         <div class="form-group required">
-          <label for="ssn">Personal code (SSN)</label>
+          <label for="ssn">SSN (personal code)</label>
           <Field name="ssn" type="text" class="form-control"/>
           <ErrorMessage name="ssn" class="error-feedback"/>
         </div>
 
         <div class="form-group required">
-          <label for="loanAmount">Loan amount (€)</label>
+          <label for="loanAmount">Loan amount ({{ minimumAmount() }} - {{ maximumAmount() }} €)</label>
           <Field name="loanAmount" type="text" class="form-control"/>
           <ErrorMessage name="loanAmount" class="error-feedback"/>
         </div>
 
         <div class="form-group required">
-          <label for="loanPeriodMonths">Loan period (months)</label>
+          <label for="loanPeriodMonths">Loan period ({{ minimumPeriod() }} - {{ maximumPeriod() }} months)</label>
           <Field name="loanPeriodMonths" type="text" class="form-control"/>
           <ErrorMessage name="loanPeriodMonths" class="error-feedback"/>
         </div>
@@ -59,6 +59,7 @@ import * as yup from 'yup';
 import { ValidationError } from 'yup';
 import server, { COMPLETE_SSN_LENGTH } from "../server/server";
 import { ValidationStatus } from "../models/SsnValidationResult";
+import ValidationLimits from "../models/ValidationLimits";
 
 export default {
   name: "Loans",
@@ -83,12 +84,40 @@ export default {
         loanAmount:
           yup.number()
             .typeError('Please enter a valid number')
-            .required("Please enter a loan amount"),
+            .required("Please enter a loan amount")
+              .test(
+                  "minimumLoanAmount",
+                  "Loan amount is below minimum allowed",
+                  async (value) => {
+                    return value >= this.getValidationLimits().minimumLoanAmount
+                  }
+              )
+              .test(
+                  "maximumLoanAmount",
+                  "Loan amount is above maximum allowed",
+                  async (value) => {
+                    return value <= this.getValidationLimits().maximumLoanAmount
+                  }
+              ),
 
         loanPeriodMonths:
           yup.number()
             .typeError('Please enter a valid number')
-            .required("Please enter a loan period"),
+            .required("Please enter a loan period")
+            .test(
+                "minimumLoanPeriod",
+                "Loan period is below minimum allowed",
+                async (value) => {
+                  return value >= this.getValidationLimits().minimumLoanPeriodMonths
+                }
+            )
+            .test(
+                "maximumLoanPeriod",
+                "Loan period is above maximum allowed",
+                async (value) => {
+                  return value <= this.getValidationLimits().maximumLoanPeriodMonths
+                }
+            )
       });
 
     async function validateSocialSecurityNumber(value: number): Promise<boolean | ValidationError> {
@@ -109,6 +138,7 @@ export default {
 
     return {
       loading: false,
+      validationLimits: new ValidationLimits(500, 1999, 6, 12),
       error: "",
       request: "",
       response: "",
@@ -117,8 +147,31 @@ export default {
   },
   computed: {},
   created() {
+    try {
+      this.loadValidationLimits()
+    } catch (error) {
+      this.error = `Error: unable to load configured limits, using defaults: ${JSON.stringify(this.validationLimits)}`
+    }
   },
   methods: {
+    async loadValidationLimits() {
+      this.validationLimits = await server.loadValidationLimits()
+    },
+    getValidationLimits(): ValidationLimits {
+      return this.validationLimits
+    },
+    minimumAmount() {
+      return this.validationLimits.minimumLoanAmount
+    },
+    maximumAmount() {
+      return this.validationLimits.maximumLoanAmount
+    },
+    minimumPeriod() {
+      return this.validationLimits.minimumLoanPeriodMonths
+    },
+    maximumPeriod() {
+      return this.validationLimits.maximumLoanPeriodMonths
+    },
     async doSubmit(request: any) {
       this.response = ''
       this.error = ''
