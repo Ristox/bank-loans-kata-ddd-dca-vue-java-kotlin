@@ -31,20 +31,29 @@
         </div>
 
         <div class="form-group">
-          <div v-if="request" class="alert alert-info" role="alert">
-            {{ request }}
-          </div>
-        </div>
-
-        <div class="form-group">
           <div v-if="error" class="alert alert-danger" role="alert">
             {{ error }}
           </div>
         </div>
 
         <div class="form-group">
-          <div v-if="response" class="alert alert-success" role="alert">
-            {{ response }}
+          <div v-if="eligibilityResult && eligibilityResult.result == LoanEligibilityStatus.APPROVED"
+               class="alert alert-success" role="alert">
+            <div class="result-line">
+              <span class="result-heading">Loan request: </span>
+              <span class="result-detail highlight">{{ eligibilityResult.result }}</span>
+            </div>
+            <div v-if="eligibilityResult.errors" class="result-line">
+              <span>ERRORS here</span>
+            </div>
+            <div class="result-line">
+              <span class="result-heading">For amount: </span>
+              <span class="result-detail">{{ eligibilityResult.loanAmount }} €</span>
+            </div>
+            <div class="result-line">
+              <span class="result-heading">For period: </span>
+              <span class="result-detail">{{ eligibilityResult.loanPeriodMonths }} months</span>
+            </div>
           </div>
         </div>
       </Form>
@@ -54,12 +63,14 @@
 
 
 <script lang="ts">
-import { ErrorMessage, Field, Form } from 'vee-validate';
+import {ErrorMessage, Field, Form} from 'vee-validate';
 import * as yup from 'yup';
-import { ValidationError } from 'yup';
-import server, { COMPLETE_SSN_LENGTH } from "../server/server";
-import { ValidationStatus } from "../models/SsnValidationResult";
+import {ValidationError} from 'yup';
+import server, {COMPLETE_SSN_LENGTH} from "../server/server";
+import {ValidationStatus} from "../models/SsnValidationResult";
 import ValidationLimits from "../models/ValidationLimits";
+import LoanRequest from "../models/LoanRequest";
+import LoanEligibilityResult, {LoanEligibilityStatus} from "../models/LoanEligibilityResult";
 
 export default {
   name: "Loans",
@@ -140,12 +151,15 @@ export default {
       loading: false,
       validationLimits: new ValidationLimits(500, 1999, 6, 12),
       error: "",
-      request: "",
-      response: "",
+      eligibilityResult: undefined as LoanEligibilityResult | undefined,
       schema,
     };
   },
-  computed: {},
+  computed: {
+    LoanEligibilityStatus() {
+      return LoanEligibilityStatus
+    }
+  },
   created() {
     try {
       this.loadValidationLimits()
@@ -173,14 +187,14 @@ export default {
       return this.validationLimits.maximumLoanPeriodMonths
     },
     async doSubmit(request: any) {
-      this.response = ''
       this.error = ''
       this.loading = true
-      this.request = JSON.stringify(request)
 
       try {
-        const healthResponse = await server.checkHealth()
-        this.response = 'Health status: ' + healthResponse.status
+        const {ssn, loanAmount, loanPeriodMonths} = request
+        this.eligibilityResult = await server.calculateEligibilityFor(
+            new LoanRequest(ssn, Number(loanAmount), Number(loanPeriodMonths))
+        )
       } catch (err) {
         this.error = 'Error: service unavailable'
       } finally {
@@ -222,4 +236,23 @@ label {
   content:"*";
   color:red;
 }
+
+div.result-line {
+  width: 100%;
+}
+
+span.result-heading {
+  display: inline-block;
+  width: 50%;
+}
+
+span.result-detail {
+  display: inline-block;
+  width: 50%;
+}
+
+span.result-detail.highlight {
+  font-weight: bold;
+}
+
 </style>
