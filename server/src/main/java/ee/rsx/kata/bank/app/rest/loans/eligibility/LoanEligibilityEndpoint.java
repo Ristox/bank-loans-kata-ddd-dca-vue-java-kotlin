@@ -3,7 +3,6 @@ package ee.rsx.kata.bank.app.rest.loans.eligibility;
 import ee.rsx.kata.bank.loans.eligibility.CalculateLoanEligibility;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

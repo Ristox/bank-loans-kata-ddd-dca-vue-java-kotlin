@@ -7,7 +7,6 @@ import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
 import ee.rsx.kata.bank.loans.validation.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.ValidateSocialSecurityNumber;
 import ee.rsx.kata.bank.loans.validation.ValidationLimitsDTO;
-import ee.rsx.kata.bank.loans.validation.ValidationStatus;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Named;
 
