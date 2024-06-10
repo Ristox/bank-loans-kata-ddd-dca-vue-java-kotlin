@@ -8,13 +8,18 @@ import ee.rsx.kata.bank.loans.validation.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.ValidateSocialSecurityNumber;
 import ee.rsx.kata.bank.loans.validation.ValidationLimitsDTO;
 import ee.rsx.kata.bank.loans.validation.ValidationStatus;
+import jakarta.annotation.Nullable;
 import jakarta.inject.Named;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
 import static ee.rsx.kata.bank.loans.validation.ValidationStatus.OK;
+import static java.util.Optional.*;
 import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Named
@@ -46,30 +51,46 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
     );
   }
 
-  private List<String> validate(LoanEligibilityRequestDTO eligibilityRequest) {
-    List<String> errors = new ArrayList<>();
-
-    ValidationStatus ssnValidity = validateSocialSecurityNumber.on(eligibilityRequest.ssn()).status();
-    if (ssnValidity != OK) {
-      errors.add("SSN is not valid");
-    }
-
+  private @Nullable List<String> validate(LoanEligibilityRequestDTO eligibilityRequest) {
     ValidationLimitsDTO limits = loadValidationLimits.invoke();
 
-    Integer amount = eligibilityRequest.loanAmount();
-    if (amount < limits.minimumLoanAmount()) {
-      errors.add("Loan amount is less than minimum required");
-    } else if (amount > limits.maximumLoanAmount()) {
-      errors.add("Loan amount is more than maximum allowed");
-    }
+    List<String> errors = Stream.of(
+        checkForSsnErrorIn(eligibilityRequest),
+        checkForAmountErrorIn(eligibilityRequest, limits),
+        checkForPeriodErrorIn(eligibilityRequest, limits)
+    )
+      .flatMap(Optional::stream)
+      .toList();
 
-    Integer period = eligibilityRequest.loanPeriodMonths();
-    if (period < limits.minimumLoanPeriodMonths()) {
-      errors.add("Loan period is less than minimum required");
-    } else if (period > limits.maximumLoanPeriodMonths()) {
-      errors.add("Loan period is more than maximum allowed");
-    }
 
     return errors.isEmpty() ? null : errors;
+  }
+
+  private Optional<String> checkForSsnErrorIn(LoanEligibilityRequestDTO request) {
+    ValidationStatus ssnValidity = validateSocialSecurityNumber.on(request.ssn()).status();
+
+    return ssnValidity == OK ? empty() : of("SSN is not valid");
+  }
+
+  private Optional<String> checkForAmountErrorIn(LoanEligibilityRequestDTO request, ValidationLimitsDTO limits) {
+    Integer amount = request.loanAmount();
+    if (amount < limits.minimumLoanAmount()) {
+      return of("Loan amount is less than minimum required");
+    }
+    if (amount > limits.maximumLoanAmount()) {
+      return of("Loan amount is more than maximum allowed");
+    }
+    return empty();
+  }
+
+  private Optional<String> checkForPeriodErrorIn(LoanEligibilityRequestDTO request, ValidationLimitsDTO limits) {
+    Integer period = request.loanPeriodMonths();
+    if (period < limits.minimumLoanPeriodMonths()) {
+      return of("Loan period is less than minimum required");
+    }
+    if (period > limits.maximumLoanPeriodMonths()) {
+      return of("Loan period is more than maximum allowed");
+    }
+    return empty();
   }
 }
