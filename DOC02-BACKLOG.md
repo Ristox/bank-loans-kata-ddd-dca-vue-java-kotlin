@@ -17,7 +17,7 @@
    - Requested loan period can be from **12 months up to 60 months**
 
 
-### [\[ O \] BANK-03: Default loan elibility result](backlog/___ONGOING__BANK-03.md)
+### [\[ OK \] BANK-03: Default loan elibility result](backlog/__DONE______BANK-03.md)
 
    As a user, I want to be able to submit valid personal code (SSN), loan amount (in Euros)  
    and period (in months), and receive a default, positive credit result with the requested  
