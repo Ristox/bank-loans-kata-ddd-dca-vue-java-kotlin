@@ -3,7 +3,7 @@
 As a user, I want to be able to submit valid personal code (SSN), loan amount (in Euros)  
 and period (in months) - and receive a personal credit result, which is calculated  
 based on the credit score for given loan applicant.  
-This should be calculated based on the requirements described in [BANK-04](backlog/____TODO____BANK-04.md) - however,  
+This should be calculated based on the requirements described in [BANK-04](backlog/___ONGOING__BANK-04.md) - however,  
 I should additionally receive -
 
 
