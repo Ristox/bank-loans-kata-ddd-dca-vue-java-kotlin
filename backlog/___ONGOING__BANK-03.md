@@ -6,12 +6,11 @@ loan amount and period, which is independent of a given loan applicant's SSN.
 
 #### Subtasks
 
-* **\[ O ] BANK-03-A: a static loan eligibility endpoint**
+* **\[ OK ] BANK-03-A: a static loan eligibility endpoint**
   * Implement a loan eligibility endpoint which currently always returns a positive eligibility  
     result, regardless of input data
-  * Implement server-side validations for request (personal code, loan amount and loan period)
 
-* **\[ _ ] BANK-03-B: calling eligibility service and showing the result details in UI **
+* **\[ O ] BANK-03-B: calling eligibility service and showing the result details in UI **
   * Implement the client-side call to eligibility endpoint and accepting result data
   * Display the result data with all details (ssn, available loan amount and period) in the form.
   * Remove the usage of initial health service 
