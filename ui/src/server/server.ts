@@ -1,4 +1,5 @@
 import SsnValidationResult from "../models/SsnValidationResult";
+import ValidationLimits from "../models/ValidationLimits";
 
 const SERVER_URL = '/api'
 const LOANS_VALIDATION_URL = '/loans/validation'
@@ -18,9 +19,9 @@ class Server {
     }
 
     async validateSocialSecurityNumber(ssn: number): Promise<SsnValidationResult | undefined> {
-        let isCompleteLength = ssn.toString().length == COMPLETE_SSN_LENGTH;
-        let isFirstValidationRequest = !this.lastRequestedSsn;
-        let ssnHasChanged = this.lastRequestedSsn && ssn != this.lastRequestedSsn
+        const isCompleteLength = ssn.toString().length == COMPLETE_SSN_LENGTH;
+        const isFirstValidationRequest = !this.lastRequestedSsn;
+        const ssnHasChanged = this.lastRequestedSsn && ssn != this.lastRequestedSsn
 
         if (isCompleteLength && (isFirstValidationRequest || ssnHasChanged)) {
             this.lastRequestedSsn = ssn
@@ -30,6 +31,11 @@ class Server {
         }
 
         return this.lastValidationResult
+    }
+
+    async loadValidationLimits(): Promise<ValidationLimits> {
+        const response = await fetch(`${SERVER_URL}${LOANS_VALIDATION_URL}/limits`);
+        return await response.json()
     }
 }
 
