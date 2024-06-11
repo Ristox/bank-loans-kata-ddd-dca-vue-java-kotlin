@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.infra.eligibility.adapter.eligibleperiod;
+package ee.rsx.kata.bank.loans.adapter.eligibility.eligibleperiod;
 
 import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
