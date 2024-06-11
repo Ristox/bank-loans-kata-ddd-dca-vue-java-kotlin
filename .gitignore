@@ -19,7 +19,6 @@ dist-ssr
 *.local
 
 .gradle/
-!server/gradle/wrapper/gradle-wrapper.jar
 *.jar
 *.war
 *.nar
@@ -37,3 +36,5 @@ database.db
 **/cypress/support
 **/cypress/screenshots
 **/cypress/videos
+
+!server/gradle/wrapper/gradle-wrapper.jar
