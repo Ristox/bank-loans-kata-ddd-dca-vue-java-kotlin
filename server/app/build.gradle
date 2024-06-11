@@ -1,0 +1,17 @@
+plugins {
+  id 'org.springframework.boot' version '3.3.0'
+}
+group = 'ee.rsx.kata.bank'
+version = '1.0.0-SNAPSHOT'
+
+dependencies {
+  implementation project(':loans-api')
+  runtimeOnly project(':loans')
+
+  implementation 'org.springframework.boot:spring-boot-starter-web'
+  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+}
+//
+//bootJar {
+//  mainClassName = 'ee.rsx.kata.bank.app.Server'
+//}

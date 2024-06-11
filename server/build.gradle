@@ -1,47 +1,60 @@
 plugins {
   id 'java'
-  id 'org.springframework.boot' version '3.3.0'
   id 'io.spring.dependency-management' version '1.1.5'
   id 'io.freefair.lombok' version '8.6'
-}
-
-bootJar {
-  enabled = false
 }
 
 group = 'ee.rsx.kata.bank'
 version = '1.0.0-SNAPSHOT'
 sourceCompatibility = '17'
 
-
 repositories {
-	mavenCentral()
+  mavenCentral()
 }
 
-dependencies {
-  compileOnly 'org.projectlombok:lombok:1.18.32'
+subprojects {
 
-  implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-  implementation 'org.springframework.boot:spring-boot-starter-web'
-  implementation 'org.xerial:sqlite-jdbc:3.46.0.0'
-  implementation 'org.hibernate:hibernate-core:6.5.2.Final'
-  implementation 'org.hibernate.orm:hibernate-community-dialects'
+  apply plugin: 'java'
+  apply plugin: 'io.spring.dependency-management'
+  apply plugin: 'io.freefair.lombok'
+  apply plugin: 'jacoco'
+  apply plugin: 'idea'
 
-  implementation 'jakarta.inject:jakarta.inject-api:2.0.1'
+  sourceCompatibility = '17'
+  targetCompatibility = '17'
 
-  testImplementation 'org.springframework.boot:spring-boot-starter-test'
+  repositories {
+    mavenCentral()
+  }
+
+  dependencies {
+    compileOnly 'org.projectlombok:lombok:1.18.32'
+
+    implementation 'jakarta.inject:jakarta.inject-api:2.0.1'
+    implementation 'jakarta.annotation:jakarta.annotation-api:3.0.0'
+    implementation 'org.apache.commons:commons-collections4:4.4'
+
+    testImplementation platform('org.junit:junit-bom:5.9.1')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+
+    testImplementation 'org.mockito:mockito-core:5.12.0'
+    testImplementation 'org.mockito:mockito-junit-jupiter:5.12.0'
+
+    testImplementation 'org.hamcrest:hamcrest:2.2'
+    testImplementation 'org.assertj:assertj-core:3.26.0'
+  }
+
+  tasks.named('test') {
+    useJUnitPlatform()
+  }
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
-}
-
-jar {
-	enabled = true
-    manifest {
-        attributes(
-			    'Class-Path': configurations.runtimeClasspath.collect{it.toURI().toString()}.join(' '),
-                'Main-Class': 'ee.rsx.kata.bank.app.Server'
-        )
-    }
-}
+//jar {
+//	enabled = true
+//    manifest {
+//        attributes(
+//			    'Class-Path': configurations.runtimeClasspath.collect{it.toURI().toString()}.join(' '),
+//          'Main-Class': 'ee.rsx.kata.bank.app.Server'
+//        )
+//    }
+//}
