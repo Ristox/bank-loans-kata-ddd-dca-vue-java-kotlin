@@ -1,8 +1,10 @@
 package ee.rsx.kata.bank.loans.eligibility.core.domain;
 
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
+import jakarta.annotation.Nullable;
 
 public record LoanEligibility(
   LoanEligibilityStatus status,
-  Integer eligibleAmount
+  @Nullable Integer eligibleAmount,
+  @Nullable Integer eligiblePeriod
 ) {}
