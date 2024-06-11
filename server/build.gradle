@@ -41,7 +41,7 @@ jar {
     manifest {
         attributes(
 			    'Class-Path': configurations.runtimeClasspath.collect{it.toURI().toString()}.join(' '),
-                'Main-Class': 'ee.rsx.kata.bank.app.BackendServer'
+                'Main-Class': 'ee.rsx.kata.bank.app.Server'
         )
     }
 }
