@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.eligibility.core;
+package ee.rsx.kata.bank.loans.eligibility.core.domain;
 
 import ee.rsx.kata.bank.loans.validation.core.domain.SocialSecurityNumber;
 import org.junit.jupiter.api.DisplayName;

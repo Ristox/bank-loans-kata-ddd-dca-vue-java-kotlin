@@ -1,8 +1,8 @@
-package ee.rsx.kata.bank.loans.eligibility.core;
+package ee.rsx.kata.bank.loans.eligibility.core.domain;
 
 import ee.rsx.kata.bank.loans.validation.core.domain.SocialSecurityNumber;
 
-import static ee.rsx.kata.bank.loans.eligibility.core.CreditSegmentType.DEBT;
+import static ee.rsx.kata.bank.loans.eligibility.core.domain.CreditSegmentType.DEBT;
 
 public record CreditSegment(
   SocialSecurityNumber ssn,

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -81,7 +82,8 @@ public class LoanEligibilityIntegrationTest {
                 "result": "APPROVED",
                 "ssn": "%s",
                 "loanAmount": 4500,
-                "loanPeriodMonths": 36
+                "loanPeriodMonths": 36,
+                "eligibleLoanAmount": 10000
               }
             """.formatted(highCreditPerson)
         )
@@ -146,7 +148,8 @@ public class LoanEligibilityIntegrationTest {
                 "result": "DENIED",
                 "ssn": "%s",
                 "loanAmount": 4500,
-                "loanPeriodMonths": 36
+                "loanPeriodMonths": 36,
+                "eligibleLoanAmount": 3599
               }
             """.formatted(lowCreditPerson)
         )

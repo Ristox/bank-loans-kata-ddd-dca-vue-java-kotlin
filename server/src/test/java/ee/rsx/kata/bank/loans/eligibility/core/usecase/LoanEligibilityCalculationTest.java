@@ -1,8 +1,11 @@
-package ee.rsx.kata.bank.loans.eligibility.core;
+package ee.rsx.kata.bank.loans.eligibility.core.usecase;
 
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
+import ee.rsx.kata.bank.loans.eligibility.core.domain.CreditSegment;
+import ee.rsx.kata.bank.loans.eligibility.core.domain.CreditSegmentType;
+import ee.rsx.kata.bank.loans.eligibility.core.domain.FindCreditSegment;
 import ee.rsx.kata.bank.loans.validation.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.SsnValidationResultDTO;
 import ee.rsx.kata.bank.loans.validation.ValidateSocialSecurityNumber;
@@ -22,7 +25,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
-import static ee.rsx.kata.bank.loans.eligibility.core.CreditSegmentType.*;
+import static ee.rsx.kata.bank.loans.eligibility.core.domain.CreditSegmentType.*;
 import static ee.rsx.kata.bank.loans.validation.SsnValidationResultDTO.*;
 import static java.util.Arrays.stream;
 import static java.util.Optional.empty;
@@ -88,7 +91,7 @@ class LoanEligibilityCalculationTest {
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
 
     assertThat(result)
-      .isEqualTo(expectedResult(APPROVED).create());
+      .isEqualTo(expectedResult(APPROVED).eligibleLoanAmount(10_000).create());
   }
 
   @Test
@@ -112,7 +115,20 @@ class LoanEligibilityCalculationTest {
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
 
     assertThat(result)
-      .isEqualTo(expectedResult(DENIED).create());
+      .isEqualTo(expectedResult(DENIED).eligibleLoanAmount(3599).create());
+  }
+
+  @Test
+  @DisplayName("returns DENIED result, with no eligible amount when it would be less than minimum loan amount")
+  void returns_DENIED_result_withNoEligibleAmount_whenItWouldBe_lessThan_MinimumLoanAmount() {
+    LoanEligibilityRequestDTO validRequest = testRequest().amount(2000).period(20).create();
+    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 100);
+
+    LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
+
+    assertThat(result)
+      .isEqualTo(expectedResult(DENIED).amount(2000).period(20).eligibleLoanAmount(null).create());
+    //TODO test eligibility separately
   }
 
   @Test
@@ -125,7 +141,8 @@ class LoanEligibilityCalculationTest {
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
 
     assertThat(result)
-      .isEqualTo(expectedResult(APPROVED).period(fortySixMonths).create());
+      .isEqualTo(expectedResult(APPROVED).eligibleLoanAmount(4599).period(fortySixMonths).create());
+    //TODO test eligibility separately
   }
 
   @Test
@@ -138,7 +155,7 @@ class LoanEligibilityCalculationTest {
     LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
 
     assertThat(result)
-      .isEqualTo(expectedResult(APPROVED).amount(smallAmount).create());
+      .isEqualTo(expectedResult(APPROVED).eligibleLoanAmount(2159).amount(smallAmount).create());
   }
 
   @Nested
@@ -312,6 +329,7 @@ class LoanEligibilityCalculationTest {
     private String ssn = DEFAULT_SSN;
     private Integer amount = DEFAULT_AMOUNT;
     private Integer period = DEFAULT_PERIOD;
+    private Integer eligibleLoanAmount = null;
 
     public DefaultTestResult status(LoanEligibilityStatus value) {
       this.status = value;
@@ -338,8 +356,15 @@ class LoanEligibilityCalculationTest {
       return this;
     }
 
+    public DefaultTestResult eligibleLoanAmount(Integer value) {
+      this.eligibleLoanAmount = value;
+      return this;
+    }
+
     public LoanEligibilityResultDTO create() {
-      return new LoanEligibilityResultDTO(this.status, this.errors, this.ssn, this.amount, this.period);
+      return new LoanEligibilityResultDTO(
+        status, errors, ssn, amount, period, eligibleLoanAmount
+      );
     }
   }
 }

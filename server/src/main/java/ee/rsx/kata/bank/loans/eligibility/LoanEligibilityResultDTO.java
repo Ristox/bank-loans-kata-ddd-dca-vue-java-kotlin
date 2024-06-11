@@ -7,5 +7,6 @@ public record LoanEligibilityResultDTO(
   List<String> errors,
   String ssn,
   Integer loanAmount,
-  Integer loanPeriodMonths
+  Integer loanPeriodMonths,
+  Integer eligibleLoanAmount
 ) {}

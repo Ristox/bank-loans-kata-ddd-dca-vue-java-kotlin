@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.eligibility.core;
+package ee.rsx.kata.bank.loans.eligibility.core.domain;
 
 public enum CreditSegmentType {
   SEGMENT_1,

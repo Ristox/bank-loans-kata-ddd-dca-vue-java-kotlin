@@ -1,15 +1,15 @@
 package ee.rsx.kata.bank.loans.eligibility.gateway.adapter.creditsegment;
 
-import ee.rsx.kata.bank.loans.eligibility.core.CreditSegment;
-import ee.rsx.kata.bank.loans.eligibility.core.CreditSegmentType;
-import ee.rsx.kata.bank.loans.eligibility.core.FindCreditSegment;
+import ee.rsx.kata.bank.loans.eligibility.core.domain.CreditSegment;
+import ee.rsx.kata.bank.loans.eligibility.core.domain.CreditSegmentType;
+import ee.rsx.kata.bank.loans.eligibility.core.domain.FindCreditSegment;
 import ee.rsx.kata.bank.loans.validation.core.domain.SocialSecurityNumber;
 import jakarta.inject.Named;
 
 import java.util.Map;
 import java.util.Optional;
 
-import static ee.rsx.kata.bank.loans.eligibility.core.CreditSegmentType.*;
+import static ee.rsx.kata.bank.loans.eligibility.core.domain.CreditSegmentType.*;
 import static java.util.Optional.ofNullable;
 
 @Named
