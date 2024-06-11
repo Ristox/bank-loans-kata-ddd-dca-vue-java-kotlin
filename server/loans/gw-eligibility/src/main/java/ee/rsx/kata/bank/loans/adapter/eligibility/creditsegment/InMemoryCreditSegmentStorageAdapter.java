@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.infra.eligibility.adapter.creditsegment;
+package ee.rsx.kata.bank.loans.adapter.eligibility.creditsegment;
 
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType;
@@ -13,7 +13,7 @@ import static ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType.*;
 import static java.util.Optional.ofNullable;
 
 @Named
-public class InMemoryCreditSegmentStorageAdapter implements FindCreditSegment {
+class InMemoryCreditSegmentStorageAdapter implements FindCreditSegment {
 
   private static final Map<String, CreditSegment> creditSegmentOfPerson = Map.ofEntries(
     segmentFor("49002010965", DEBT, 666),

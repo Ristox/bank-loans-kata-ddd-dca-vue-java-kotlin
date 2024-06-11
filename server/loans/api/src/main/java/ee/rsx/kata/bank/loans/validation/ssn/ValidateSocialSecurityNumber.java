@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.api.validation.ssn;
+package ee.rsx.kata.bank.loans.validation.ssn;
 
 @FunctionalInterface
 public interface ValidateSocialSecurityNumber {

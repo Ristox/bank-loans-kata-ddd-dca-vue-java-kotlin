@@ -5,7 +5,7 @@ import ee.rsx.kata.bank.loans.domain.limits.LoanLimitsConfig;
 import jakarta.inject.Named;
 
 @Named
-public class LoanConfigurationAdapter implements LoanConfigGateway {
+class LoanConfigurationAdapter implements LoanConfigGateway {
 
   private static final int MINIMUM_LOAN_AMOUNT = 2_000;
   private static final int MAXIMUM_LOAN_AMOUNT = 10_000;

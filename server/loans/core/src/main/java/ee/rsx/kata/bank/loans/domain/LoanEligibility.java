@@ -1,6 +1,6 @@
 package ee.rsx.kata.bank.loans.domain;
 
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityStatus;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
 import jakarta.annotation.Nullable;
 
 public record LoanEligibility(

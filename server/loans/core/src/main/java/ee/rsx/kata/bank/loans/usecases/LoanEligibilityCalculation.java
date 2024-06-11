@@ -1,12 +1,12 @@
 package ee.rsx.kata.bank.loans.usecases;
 
-import ee.rsx.kata.bank.loans.api.eligibility.CalculateLoanEligibility;
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityRequestDTO;
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityResultDTO;
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityStatus;
-import ee.rsx.kata.bank.loans.api.validation.limits.LoadValidationLimits;
-import ee.rsx.kata.bank.loans.api.validation.limits.ValidationLimitsDTO;
-import ee.rsx.kata.bank.loans.api.validation.ssn.ValidateSocialSecurityNumber;
+import ee.rsx.kata.bank.loans.eligibility.CalculateLoanEligibility;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
+import ee.rsx.kata.bank.loans.validation.limits.LoadValidationLimits;
+import ee.rsx.kata.bank.loans.validation.limits.ValidationLimitsDTO;
+import ee.rsx.kata.bank.loans.validation.ssn.ValidateSocialSecurityNumber;
 import ee.rsx.kata.bank.loans.domain.DetermineEligiblePeriod;
 import ee.rsx.kata.bank.loans.domain.LoanEligibility;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
@@ -20,8 +20,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-import static ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityStatus.*;
-import static ee.rsx.kata.bank.loans.api.validation.ssn.ValidationStatus.OK;
+import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
+import static ee.rsx.kata.bank.loans.validation.ssn.ValidationStatus.OK;
 import static ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType.DEBT;
 import static java.util.Objects.*;
 import static java.util.Optional.*;

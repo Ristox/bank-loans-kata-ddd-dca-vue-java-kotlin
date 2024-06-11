@@ -1,6 +1,6 @@
 package ee.rsx.kata.bank.loans.adapter.eligibility.eligibleperiod;
 
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityRequestDTO;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.domain.DetermineEligiblePeriod;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 import jakarta.inject.Named;
@@ -11,7 +11,7 @@ import static ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType.DEBT;
 import static java.util.Optional.*;
 
 @Named
-public class FirstEligiblePeriodAdapter implements DetermineEligiblePeriod {
+class FirstEligiblePeriodAdapter implements DetermineEligiblePeriod {
 
   @Override
   public Optional<Integer> forLoan(LoanEligibilityRequestDTO request, CreditSegment creditSegment) {

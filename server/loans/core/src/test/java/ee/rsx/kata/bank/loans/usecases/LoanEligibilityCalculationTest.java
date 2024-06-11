@@ -1,12 +1,12 @@
 package ee.rsx.kata.bank.loans.usecases;
 
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityRequestDTO;
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityResultDTO;
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityStatus;
-import ee.rsx.kata.bank.loans.api.validation.limits.LoadValidationLimits;
-import ee.rsx.kata.bank.loans.api.validation.limits.ValidationLimitsDTO;
-import ee.rsx.kata.bank.loans.api.validation.ssn.SsnValidationResultDTO;
-import ee.rsx.kata.bank.loans.api.validation.ssn.ValidateSocialSecurityNumber;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
+import ee.rsx.kata.bank.loans.validation.limits.LoadValidationLimits;
+import ee.rsx.kata.bank.loans.validation.limits.ValidationLimitsDTO;
+import ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO;
+import ee.rsx.kata.bank.loans.validation.ssn.ValidateSocialSecurityNumber;
 import ee.rsx.kata.bank.loans.domain.DetermineEligiblePeriod;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType;
@@ -25,9 +25,9 @@ import org.mockito.stubbing.Answer;
 import java.util.List;
 import java.util.Optional;
 
-import static ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityStatus.*;
-import static ee.rsx.kata.bank.loans.api.validation.ssn.SsnValidationResultDTO.*;
+import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
 import static ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType.*;
+import static ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO.*;
 import static java.util.Arrays.stream;
 import static java.util.Optional.empty;
 import static org.assertj.core.api.Assertions.assertThat;

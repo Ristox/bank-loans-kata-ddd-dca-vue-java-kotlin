@@ -1,6 +1,6 @@
 package ee.rsx.kata.bank.loans.adapter.eligibility.eligibleperiod;
 
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityRequestDTO;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import org.junit.jupiter.api.BeforeEach;

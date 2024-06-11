@@ -1,6 +1,6 @@
 package ee.rsx.kata.bank.loans.domain;
 
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityRequestDTO;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 
 import java.util.Optional;

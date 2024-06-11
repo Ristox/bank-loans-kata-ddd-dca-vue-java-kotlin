@@ -1,8 +1,8 @@
 package ee.rsx.kata.bank.app.rest.loans.eligibility;
 
-import ee.rsx.kata.bank.loans.api.eligibility.CalculateLoanEligibility;
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityRequestDTO;
-import ee.rsx.kata.bank.loans.api.eligibility.LoanEligibilityResultDTO;
+import ee.rsx.kata.bank.loans.eligibility.CalculateLoanEligibility;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

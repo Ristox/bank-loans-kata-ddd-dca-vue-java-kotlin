@@ -1,12 +1,12 @@
 package ee.rsx.kata.bank.loans.usecases;
 
-import ee.rsx.kata.bank.loans.api.validation.ssn.SsnValidationResultDTO;
+import ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import static ee.rsx.kata.bank.loans.api.validation.ssn.ValidationStatus.*;
+import static ee.rsx.kata.bank.loans.validation.ssn.ValidationStatus.*;
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
 

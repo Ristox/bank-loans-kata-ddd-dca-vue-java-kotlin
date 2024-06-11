@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.api.validation.limits;
+package ee.rsx.kata.bank.loans.validation.limits;
 
 public record ValidationLimitsDTO(
   Integer minimumLoanAmount,

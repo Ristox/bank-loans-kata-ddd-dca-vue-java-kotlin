@@ -1,6 +1,6 @@
-package ee.rsx.kata.bank.loans.api.validation.ssn;
+package ee.rsx.kata.bank.loans.validation.ssn;
 
-import static ee.rsx.kata.bank.loans.api.validation.ssn.ValidationStatus.INVALID;
+import static ee.rsx.kata.bank.loans.validation.ssn.ValidationStatus.INVALID;
 
 public record SsnValidationResultDTO(String ssn, ValidationStatus status) {
 

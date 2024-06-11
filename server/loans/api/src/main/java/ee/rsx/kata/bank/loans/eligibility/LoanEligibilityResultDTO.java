@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.api.eligibility;
+package ee.rsx.kata.bank.loans.eligibility;
 
 import java.util.List;
 

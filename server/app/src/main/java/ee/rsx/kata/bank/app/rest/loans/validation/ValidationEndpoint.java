@@ -1,7 +1,7 @@
 package ee.rsx.kata.bank.app.rest.loans.validation;
 
-import ee.rsx.kata.bank.loans.api.validation.ssn.SsnValidationResultDTO;
-import ee.rsx.kata.bank.loans.api.validation.ssn.ValidateSocialSecurityNumber;
+import ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO;
+import ee.rsx.kata.bank.loans.validation.ssn.ValidateSocialSecurityNumber;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
