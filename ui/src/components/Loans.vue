@@ -21,12 +21,12 @@
         </div>
 
         <div class="form-group">
-          <button class="btn btn-primary btn-block" :disabled="loading">
+          <button class="btn btn-outline-primary btn-block" :disabled="loading">
               <span
                   v-show="loading"
                   class="spinner-border spinner-border-sm"
               ></span>
-            <span>Submit</span>
+            <span>Apply for loan</span>
           </button>
         </div>
 
@@ -50,7 +50,7 @@
             <div v-if="eligibilityResponse.errors" class="result-line">
               <div class="result-line">Errors:</div>
               <ul>
-                <li v-for="error in eligibilityResponse.errors" :key="error">
+                <li v-for="error in eligibilityResponse.errors" :key="error.toString()">
                   {{ error }}
                 </li>
               </ul>
@@ -69,6 +69,10 @@
               <span class="result-heading" v-if="loanApproved">Offered amount: </span>
               <span class="result-heading" v-else-if="loanDenied">Eligible amount: </span>
               <span class="result-detail highlight">{{ eligibilityResponse.eligibleLoanAmount }} €</span>
+            </div>
+            <div v-if="eligibilityResponse.eligibleLoanPeriod != null" class="result-line">
+              <span class="result-heading">Eligible period: </span>
+              <span class="result-detail highlight">{{ eligibilityResponse.eligibleLoanPeriod }} months</span>
             </div>
           </div>
         </div>

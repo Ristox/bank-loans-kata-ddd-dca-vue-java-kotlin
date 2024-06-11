@@ -6,7 +6,8 @@ export default class LoanEligibilityResult {
         public ssn: string,
         public loanAmount: number,
         public loanPeriodMonths: number,
-        public eligibleLoanAmount: number | null
+        public eligibleLoanAmount: number | null,
+        public eligibleLoanPeriod: number | null
     ) {}
 }
 
