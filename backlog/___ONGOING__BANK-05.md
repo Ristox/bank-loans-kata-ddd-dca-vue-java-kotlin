@@ -19,7 +19,7 @@ I should additionally receive -
 
 #### Subtasks
 
-* **\[ _ ] BANK-05-A: distinguish DENIED loan requests in UI**
+* **\[ O ] BANK-05-A: distinguish DENIED loan requests in UI**
     * Instead of "green response", show a color more suitable for forbidden / denied state  
       eg yellow / orange
   

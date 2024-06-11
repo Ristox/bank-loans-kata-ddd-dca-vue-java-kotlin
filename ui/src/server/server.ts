@@ -25,6 +25,9 @@ class Server {
             this.lastRequestedSsn = ssn
 
             const response = await fetch(`${SERVER_URL}${LOANS_VALIDATION_URL}/ssn?value=${ssn}`)
+            if (response.status >= 500) {
+                throw new Error(response.statusText);
+            }
             this.lastValidationResult = await response.json()
         }
 
@@ -33,23 +36,29 @@ class Server {
 
     async loadValidationLimits(): Promise<ValidationLimits> {
         const response = await fetch(`${SERVER_URL}${LOANS_VALIDATION_URL}/limits`);
-        return await response.json()
+        if (response.status >= 500) {
+            throw new Error(response.statusText);
+        }
+        return await response.json();
     }
 
     async calculateEligibilityFor(loanRequest: LoanRequest): Promise<LoanEligibilityResult> {
-        const response = await fetch(
+       const response = await fetch(
             `${SERVER_URL}${LOANS_ELIGIBILITY_URL}`,
             {
-              method: 'POST',
+                method: 'POST',
                 headers: {
                   'Accept': 'application/json',
                   'Content-Type': 'application/json'
                 },
                 body: JSON.stringify(loanRequest)
-              }
-            );
-
-        return await response.json()
+            }
+        )
+        console.log(response.type)
+        if (response.status >= 500) {
+            throw new Error(response.statusText);
+        }
+        return response.json()
     }
 }
 

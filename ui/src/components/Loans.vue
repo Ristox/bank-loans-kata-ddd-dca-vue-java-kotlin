@@ -31,28 +31,38 @@
         </div>
 
         <div class="form-group">
-          <div v-if="error" class="alert alert-danger" role="alert">
+          <div v-if="error" class="alert alert-danger alert" role="alert">
             {{ error }}
           </div>
         </div>
 
         <div class="form-group">
-          <div v-if="eligibilityResult && eligibilityResult.result == LoanEligibilityStatus.APPROVED"
-               class="alert alert-success" role="alert">
+          <div v-if="eligibilityResponse"
+               class="alert" role="alert"
+               v-bind:class="{
+                  'alert-success': loanApproved,
+                  'alert-warning': loanDenied,
+                  'alert-danger': loanInvalid }">
             <div class="result-line">
               <span class="result-heading">Loan request: </span>
-              <span class="result-detail highlight">{{ eligibilityResult.result }}</span>
+              <span class="result-detail highlight">{{ eligibilityResponse.result }}</span>
             </div>
-            <div v-if="eligibilityResult.errors" class="result-line">
-              <span>ERRORS here</span>
+            <div v-if="eligibilityResponse.errors" class="result-line">
+              <div class="result-line">Errors:</div>
+              <ul>
+                <li v-for="error in eligibilityResponse.errors" :key="error">
+                  {{ error }}
+                </li>
+              </ul>
+
             </div>
             <div class="result-line">
               <span class="result-heading">For amount: </span>
-              <span class="result-detail">{{ eligibilityResult.loanAmount }} €</span>
+              <span class="result-detail">{{ eligibilityResponse.loanAmount }} €</span>
             </div>
             <div class="result-line">
               <span class="result-heading">For period: </span>
-              <span class="result-detail">{{ eligibilityResult.loanPeriodMonths }} months</span>
+              <span class="result-detail">{{ eligibilityResponse.loanPeriodMonths }} months</span>
             </div>
           </div>
         </div>
@@ -89,7 +99,7 @@ export default {
             .test(
               'validateSocialSecurityNumber',
               'Personal code (SSN) is not valid',
-              validateSocialSecurityNumber
+              async (value) => await this.validateSocialSecurityNumber(value)
             ),
 
         loanAmount:
@@ -99,14 +109,14 @@ export default {
               .test(
                   "minimumLoanAmount",
                   "Loan amount is below minimum allowed",
-                  async (value) => {
+                  (value) => {
                     return value >= this.getValidationLimits().minimumLoanAmount
                   }
               )
               .test(
                   "maximumLoanAmount",
                   "Loan amount is above maximum allowed",
-                  async (value) => {
+                  (value) => {
                     return value <= this.getValidationLimits().maximumLoanAmount
                   }
               ),
@@ -118,47 +128,37 @@ export default {
             .test(
                 "minimumLoanPeriod",
                 "Loan period is below minimum allowed",
-                async (value) => {
+                (value) => {
                   return value >= this.getValidationLimits().minimumLoanPeriodMonths
                 }
             )
             .test(
                 "maximumLoanPeriod",
                 "Loan period is above maximum allowed",
-                async (value) => {
-                  return value <= this.getValidationLimits().maximumLoanPeriodMonths
+                (value) => {
+                  return value <= 90// this.getValidationLimits().maximumLoanPeriodMonths
                 }
             )
       });
 
-    async function validateSocialSecurityNumber(value: number): Promise<boolean | ValidationError> {
-      if (value.toString().length != COMPLETE_SSN_LENGTH) {
-        return false
-      }
-      try {
-        const validationResult = await server.validateSocialSecurityNumber(value)
-        if (validationResult) {
-          return validationResult.status == ValidationStatus.OK;
-        } else {
-          return true;
-        }
-      } catch (error: any) {
-        return new ValidationError('Error: validation service unavailable')
-      }
-    }
-
     return {
       loading: false,
-      validationLimits: new ValidationLimits(500, 1999, 6, 12),
+      validationLimits: new ValidationLimits(500, 1999, 6, 12) as ValidationLimits,
       error: "",
-      eligibilityResult: undefined as LoanEligibilityResult | undefined,
+      eligibilityResponse: undefined as LoanEligibilityResult | undefined,
       schema,
     };
   },
   computed: {
-    LoanEligibilityStatus() {
-      return LoanEligibilityStatus
-    }
+    loanApproved() {
+      return this.eligibilityResponse?.result == LoanEligibilityStatus.APPROVED
+    },
+    loanDenied() {
+      return this.eligibilityResponse?.result == LoanEligibilityStatus.DENIED
+    },
+    loanInvalid() {
+      return this.eligibilityResponse?.result == LoanEligibilityStatus.INVALID
+    },
   },
   created() {
     try {
@@ -169,7 +169,34 @@ export default {
   },
   methods: {
     async loadValidationLimits() {
-      this.validationLimits = await server.loadValidationLimits()
+      this.loading = true
+      try {
+        this.validationLimits = await server.loadValidationLimits()
+      }
+      catch (error) {
+        this.error = 'Error: service unavailable (unable to acquire loan limits, will use default values)'
+      }
+      this.loading = false
+    },
+    async validateSocialSecurityNumber(value: number): Promise<boolean | ValidationError> {
+      if (value.toString().length != COMPLETE_SSN_LENGTH) {
+        return false
+      }
+      try {
+        this.loading = true
+        this.error = ''
+        const validationResult = await server.validateSocialSecurityNumber(value)
+        this.loading = false
+        if (validationResult) {
+          return validationResult.status == ValidationStatus.OK;
+        } else {
+          return true;
+        }
+      } catch (error) {
+        this.error = 'Error: service unavailable (unable to perform validation)'
+        this.loading = false
+        return true
+      }
     },
     getValidationLimits(): ValidationLimits {
       return this.validationLimits
@@ -187,16 +214,16 @@ export default {
       return this.validationLimits.maximumLoanPeriodMonths
     },
     async doSubmit(request: any) {
-      this.error = ''
       this.loading = true
-
       try {
         const {ssn, loanAmount, loanPeriodMonths} = request
-        this.eligibilityResult = await server.calculateEligibilityFor(
+        this.eligibilityResponse = await server.calculateEligibilityFor(
             new LoanRequest(ssn, Number(loanAmount), Number(loanPeriodMonths))
         )
-      } catch (err) {
-        this.error = 'Error: service unavailable'
+        this.error = ''
+      } catch (error) {
+        this.eligibilityResponse = undefined
+        this.error = `Error: service unavailable (unable to calculate loan eligibility)`
       } finally {
         this.loading = false
       }
