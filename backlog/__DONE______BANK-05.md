@@ -24,13 +24,13 @@ I should additionally receive -
       eg yellow / orange
     * Improve UI error handling and messages in fault situations, incl. when server is down
   
-* **\[ O ] BANK-05-B: when loan request is DENIED, calculate and show highest loan amount which would be approved**
+* **\[ OK ] BANK-05-B: when loan request is DENIED, calculate and show highest loan amount which would be approved**
     * in loan eligibility calculations, when credit score is 1 or less, calculate the highest loan amount
       which would instead result in credit score greater than 1, eg loan approval.  
       Therefore, this is the "highest available loan amount", which in current case shall be  
       less than requested amount
    * in loan eligibility calculations, when credit score is more than 1, calculate the highest loan amount
       which would instead result in credit score of 1 or less, eg loan denial.  
-      Therefore, this is the "highest available loan amount", which in current case shall be  
+      Therefore, this is the highest eligible loan amount, which in current case shall be  
       more than requested amount
-    * add the calculated amount as "highest available loan amount" to result and show in UI
+    * add the calculated amount as "Eligible loan amount" to result and show in UI
