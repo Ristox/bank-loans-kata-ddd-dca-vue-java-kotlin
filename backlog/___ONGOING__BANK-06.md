@@ -37,5 +37,9 @@ I.e.:
     * Ensure that the adapter does not calculate any eligible loan period for a DEBT credit segment  
       (returns empty result)
 
-* **\[ O ] BANK-06-C: when available, show the new eligible period (along with eligible amount) in UI**
+* **\[ OK ] BANK-06-C: when available, show the new eligible period (along with eligible amount) in UI**
     * In UI, show the new eligible period, when its calculated - along with the eligible amount.  
+
+
+* **\[ O ] BANK-06-D: architecture restructuring + technical refactorings**
+    *   
