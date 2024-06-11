@@ -10,12 +10,3 @@ public interface DetermineEligiblePeriod {
 
   Optional<Integer> forLoan(LoanEligibilityRequestDTO request, CreditSegment creditSegment);
 }
-
-@Named
-class DummyEligiblePeriodReturningEmpty implements DetermineEligiblePeriod {
-
-  @Override
-  public Optional<Integer> forLoan(LoanEligibilityRequestDTO request, CreditSegment creditSegment) {
-    return Optional.empty();
-  }
-}
