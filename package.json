@@ -5,7 +5,7 @@
     "build:server": "cd server && ./gradlew build",
     "build:ui": "cd ui && npm install && npm run build",
     "build": "npm run build:server && npm run build:ui",
-    "start:server": "java -jar server/build/libs/bank-loans-server-1.0.0-SNAPSHOT-plain.jar",
+    "start:server": "java -jar server/app/build/libs/app-1.0.0-SNAPSHOT.jar",
     "start:ui": "cd ui && npm run start",
     "start": "npm run start:server & npm run start:ui",
     "test": "cypress run"

@@ -19,7 +19,6 @@ dist-ssr
 *.local
 
 .gradle/
-!**/gradle/wrapper/gradle-wrapper.jar
 
 *.jar
 *.war
