@@ -48,13 +48,3 @@ subprojects {
     useJUnitPlatform()
   }
 }
-
-//jar {
-//	enabled = true
-//    manifest {
-//        attributes(
-//			    'Class-Path': configurations.runtimeClasspath.collect{it.toURI().toString()}.join(' '),
-//          'Main-Class': 'ee.rsx.kata.bank.app.Server'
-//        )
-//    }
-//}
