@@ -19,11 +19,12 @@ I should additionally receive -
 
 #### Subtasks
 
-* **\[ O ] BANK-05-A: distinguish DENIED loan requests in UI**
+* **\[ OK ] BANK-05-A: distinguish DENIED loan requests in UI**
     * Instead of "green response", show a color more suitable for forbidden / denied state  
       eg yellow / orange
+    * Improve UI error handling and messages in fault situations, incl. when server is down
   
-* **\[ _ ] BANK-05-B: when loan request is DENIED, calculate and show highest loan amount which would be approved**
+* **\[ O ] BANK-05-B: when loan request is DENIED, calculate and show highest loan amount which would be approved**
     * in loan eligibility calculations, when credit score is 1 or less, calculate the highest loan amount
       which would instead result in credit score greater than 1, eg loan approval.  
       Therefore, this is the "highest available loan amount", which in current case shall be  
