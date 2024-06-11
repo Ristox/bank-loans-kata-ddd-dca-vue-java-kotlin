@@ -11,14 +11,15 @@
 * Java 17
 * Node v18.18 or later
 
-### Running (only in development mode, as of now) 
+### Running the project 
 
-From project root -
+**From project root -**
+
+0. Make sure your command line terminal is using node v18.8 or higher (run `node -v`)
 
 1. Execute `npm run build`
-2. Execute `cd server && ./gradlew bootRun`  
-   (runs the backend server)
-3. In a new terminal window, execute `cd ui && npm run dev`  
-   (runs the UI frontend)
+2. Then execute `npm start` (runs both the UI and the backend server)
+3. Application UI is available at http://localhost:8088
+4. Server API is available at http://localhost:8088/api/ or http://localhost:8088/api/  
+   (root URL does not have a service mapping)
 
-NB - make sure you're using Node v18.18 or newer in both terminals
