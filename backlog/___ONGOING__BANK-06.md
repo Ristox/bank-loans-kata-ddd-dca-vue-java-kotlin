@@ -24,18 +24,18 @@ I.e.:
 
 #### Subtasks
 
-* **\[ O ] BANK-06-A: invoke calculation of new eligible loan period, when eligible amount not available **
+* **\[ O ] BANK-06-A: invoke calculation of new eligible loan period, when eligible amount not available**
     * When initially calculated eligible amount is absent and person is not debt (by credit segment),  
       then invoke calculation for a new eligible loan period, given the request and credit segment.
     * When a new eligible period is available, recalculate the eligible amount for that period
     * Return loan eligibility result with the new eligible period and amount details
 
-* **\[ _ ] BANK-06-B: perform the new eligible loan period calculation, as a "first minimum period" **
+* **\[ _ ] BANK-06-B: perform the new eligible loan period calculation, as a "first minimum period"**
     * Create a gateway adapter for determining the eligible loan period, which simply calculates the  
       first eligible (minimum) period for the given amount, which would satisfy credit requirements  
       of credit score > 1.
     * Ensure that the adapter does not calculate any eligible loan period for a DEBT credit segment  
       (returns empty result)
 
-* **\[ _ ] BANK-06-C: when available, show the new eligible period (along with eligible amount) in UI **
+* **\[ _ ] BANK-06-C: when available, show the new eligible period (along with eligible amount) in UI**
     * In UI, show the new eligible period, when its calculated - along with the eligible amount.  
