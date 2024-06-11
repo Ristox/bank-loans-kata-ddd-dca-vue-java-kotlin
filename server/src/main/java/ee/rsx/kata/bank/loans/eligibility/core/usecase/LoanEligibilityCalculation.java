@@ -111,6 +111,9 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
     Integer newPeriod = creditSegment
       .filter(segment -> segment.type() != DEBT && isNull(initialAmount))
       .flatMap(segment -> determineEligiblePeriod.forLoan(request, segment))
+      .filter(calculatedPeriod ->
+        limits.minimumLoanPeriodMonths() <= calculatedPeriod && calculatedPeriod <= limits.maximumLoanPeriodMonths()
+      )
       .orElse(null);
 
     if (nonNull(newPeriod)) {

@@ -163,6 +163,28 @@ class LoanEligibilityCalculationTest {
       );
   }
 
+  @Test
+  @DisplayName("returns DENIED result, with no new eligible period (received from gateway) nor amount, when new determined period above maximum")
+  void returns_DENIED_result_withNoNewEligiblePeriod_norAmount_whenNewDeterminedPeriodAboveMaximum() {
+    int shortPeriodOneYear = 12;
+    var validRequest = testRequest().amount(9000).period(shortPeriodOneYear).create();
+    int creditModifier = 100;
+    var segment = whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, creditModifier);
+    whenNewEligiblePeriodDeterminedFor(validRequest, segment, 91);
+
+    var result = calculateLoanEligibility.on(validRequest);
+
+    assertThat(result)
+      .isEqualTo(
+        expectedResult(DENIED)
+          .amount(9000)
+          .period(shortPeriodOneYear)
+          .eligibleLoanAmount(null)
+          .eligibleLoanPeriod(null)
+          .create()
+      );
+  }
+
   private int whenNewEligiblePeriodDeterminedFor(
     LoanEligibilityRequestDTO validRequest, CreditSegment segment, Integer newEligiblePeriod
   ) {
