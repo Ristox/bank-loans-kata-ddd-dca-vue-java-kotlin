@@ -57,12 +57,18 @@
 
             </div>
             <div class="result-line">
-              <span class="result-heading">For amount: </span>
+              <span class="result-heading">Requested amount: </span>
               <span class="result-detail">{{ eligibilityResponse.loanAmount }} €</span>
             </div>
             <div class="result-line">
-              <span class="result-heading">For period: </span>
+              <span class="result-heading">Requested period: </span>
               <span class="result-detail">{{ eligibilityResponse.loanPeriodMonths }} months</span>
+            </div>
+            <div v-if="eligibilityResponse.eligibleLoanAmount != null" class="result-line">
+              <hr />
+              <span class="result-heading" v-if="loanApproved">Offered amount: </span>
+              <span class="result-heading" v-else-if="loanDenied">Eligible amount: </span>
+              <span class="result-detail highlight">{{ eligibilityResponse.eligibleLoanAmount }} €</span>
             </div>
           </div>
         </div>
@@ -136,7 +142,7 @@ export default {
                 "maximumLoanPeriod",
                 "Loan period is above maximum allowed",
                 (value) => {
-                  return value <= 90// this.getValidationLimits().maximumLoanPeriodMonths
+                  return value <= this.getValidationLimits().maximumLoanPeriodMonths
                 }
             )
       });
@@ -240,12 +246,11 @@ label {
 
 .card-container.card {
   max-width: 350px !important;
-  padding: 40px 40px;
+  padding: 35px 25px;
 }
 
 .card {
   background-color: #f7f7f7;
-  padding: 20px 25px 30px;
   margin: 50px auto 25px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
@@ -270,15 +275,15 @@ div.result-line {
 
 span.result-heading {
   display: inline-block;
-  width: 50%;
+  width: 65%;
 }
 
 span.result-detail {
   display: inline-block;
-  width: 50%;
+  width: 35%;
 }
 
-span.result-detail.highlight {
+span.highlight {
   font-weight: bold;
 }
 
