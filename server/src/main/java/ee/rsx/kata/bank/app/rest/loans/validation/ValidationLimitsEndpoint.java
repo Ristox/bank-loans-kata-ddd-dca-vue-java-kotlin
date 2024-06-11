@@ -1,7 +1,7 @@
 package ee.rsx.kata.bank.app.rest.loans.validation;
 
-import ee.rsx.kata.bank.loans.validation.LoadValidationLimits;
-import ee.rsx.kata.bank.loans.validation.ValidationLimitsDTO;
+import ee.rsx.kata.bank.loans.api.validation.limits.LoadValidationLimits;
+import ee.rsx.kata.bank.loans.api.validation.limits.ValidationLimitsDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
