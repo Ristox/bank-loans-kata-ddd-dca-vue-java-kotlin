@@ -23,8 +23,8 @@ public class ValidationLimitsIntegrationTest {
   private MockMvc mockMvc;
 
   @Test
-  @DisplayName("returns OK result for valid provided SSN")
-  void returns_OK_result_forValidProvidedSsn() throws Exception {
+  @DisplayName("returns expected validation limits (min and max loan as well as period")
+  void returns_expectedValidationLimits_minAndMaxLoanAsWellAsPeriod() throws Exception {
     mockMvc.perform(get(VALIDATION_LIMITS_URL))
       .andExpect(status().isOk())
       .andExpect(

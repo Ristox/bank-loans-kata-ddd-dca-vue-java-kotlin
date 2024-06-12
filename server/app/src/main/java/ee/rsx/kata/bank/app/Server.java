@@ -8,7 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 @ComponentScan("ee.rsx.kata.bank")
 public class Server {
 
-	public static void main(String[] args) {
-		SpringApplication.run(Server.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(Server.class, args);
+  }
 }

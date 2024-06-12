@@ -1,6 +1,5 @@
 package ee.rsx.kata.bank.loans.adapter.eligibility.eligibleperiod;
 
-import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,10 +26,9 @@ class FirstEligiblePeriodAdapterTest {
   void returns_firstEligiblePeriod_of_51_Months_basedOn_givenLoanAmountAndCreditModifier() {
     var requestedLoan = 5000;
     var creditModifier = 100;
-    var request = new LoanEligibilityRequestDTO("49002010976", requestedLoan, 12);
     var segment = new CreditSegment(new SocialSecurityNumber("49002010976"), SEGMENT_1, creditModifier);
 
-    Optional<Integer> eligiblePeriod = determineEligiblePeriod.forLoan(request, segment);
+    Optional<Integer> eligiblePeriod = determineEligiblePeriod.forLoan(requestedLoan, segment);
 
     assertThat(eligiblePeriod)
       .isPresent()
@@ -42,14 +40,11 @@ class FirstEligiblePeriodAdapterTest {
   void returns_noEligiblePeriod_whenGivenCreditSegmentIsADebtSegment() {
     var requestedLoan = 5000;
     var creditModifier = 100;
-    var debtSegment = DEBT;
-    var request = new LoanEligibilityRequestDTO("49002010976", requestedLoan, 12);
-    var segment = new CreditSegment(new SocialSecurityNumber("49002010976"), debtSegment, creditModifier);
+    var debtSegment = new CreditSegment(new SocialSecurityNumber("49002010976"), DEBT, creditModifier);
 
-    Optional<Integer> eligiblePeriod = determineEligiblePeriod.forLoan(request, segment);
+    Optional<Integer> eligiblePeriod = determineEligiblePeriod.forLoan(requestedLoan, debtSegment);
 
     assertThat(eligiblePeriod)
       .isNotPresent();
   }
-
 }

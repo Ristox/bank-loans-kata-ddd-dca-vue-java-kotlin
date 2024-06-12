@@ -2,27 +2,25 @@ package ee.rsx.kata.bank.loans.adapter.eligibility.eligibleperiod;
 
 import ee.rsx.kata.bank.loans.domain.limits.gateway.DetermineEligiblePeriod;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
-import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import jakarta.inject.Named;
 
 import java.util.Optional;
 
-import static ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType.DEBT;
 import static java.util.Optional.*;
 
 @Named
 class FirstEligiblePeriodAdapter implements DetermineEligiblePeriod {
 
   @Override
-  public Optional<Integer> forLoan(LoanEligibilityRequestDTO request, CreditSegment creditSegment) {
-    if (creditSegment.type() == DEBT) {
+  public Optional<Integer> forLoan(Integer amount, CreditSegment creditSegment) {
+    if (creditSegment.isDebt()) {
       return empty();
     }
-    return of(calculateFirstMinimumPeriodEligibleFor(creditSegment, request));
+    return of(calculateFirstMinimumPeriodEligibleFor(amount, creditSegment));
   }
 
-  private Integer calculateFirstMinimumPeriodEligibleFor(CreditSegment creditSegment, LoanEligibilityRequestDTO request) {
-    double firstPeriod = Math.floor((double) request.loanAmount() / creditSegment.creditModifier());
+  private Integer calculateFirstMinimumPeriodEligibleFor(Integer amount, CreditSegment creditSegment) {
+    double firstPeriod = Math.floor((double) amount / creditSegment.creditModifier());
 
     return Double.valueOf(firstPeriod).intValue() + 1;
   }

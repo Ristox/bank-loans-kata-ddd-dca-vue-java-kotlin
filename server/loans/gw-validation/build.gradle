@@ -1,4 +1,3 @@
 dependencies {
-  implementation project(":loans-api")
   implementation project(":loans-core")
 }

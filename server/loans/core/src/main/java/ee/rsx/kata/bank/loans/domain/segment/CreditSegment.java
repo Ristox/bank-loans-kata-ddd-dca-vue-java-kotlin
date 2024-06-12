@@ -11,7 +11,7 @@ public record CreditSegment(
 ) {
  public int creditModifier() {
 
-   return type == DEBT ? 0 : this.creditModifier;
+   return isDebt() ? 0 : this.creditModifier;
  }
  public boolean isDebt() {
    return type == DEBT;

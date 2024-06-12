@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -25,7 +26,7 @@ public class LoanEligibilityIntegrationTest {
 
   @Test
   @DisplayName("returns an DENIED eligibility result for the provided loan request, since person is in DEBT")
-  void returns_APPROVED_result_forProvidedLoanRequest_sincePersonInDebt() throws Exception {
+  void returns_DENIED_result_forProvidedLoanRequest_sincePersonInDebt() throws Exception {
     var personInDebt = "49002010965";
     var loanEligibilityRequest = """
         {
@@ -140,6 +141,7 @@ public class LoanEligibilityIntegrationTest {
     var notAcceptableStatus = status().isNotAcceptable();
     mockMvc.perform(postRequest)
       .andExpect(notAcceptableStatus)
+      .andDo(MockMvcResultHandlers.print())
       .andExpect(
         content().json(
           """

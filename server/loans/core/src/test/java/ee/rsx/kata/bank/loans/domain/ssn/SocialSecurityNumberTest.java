@@ -144,8 +144,8 @@ class SocialSecurityNumberTest {
     @Test
     @DisplayName("ends with invalid checksum")
     void ends_with_invalidChecksum() {
-      String invalidChecksum = "3706";
-      String invalidSsnValue = format("6150429%s", invalidChecksum);
+      String invalidChecksum = "6";
+      String invalidSsnValue = format("6150429370%s", invalidChecksum);
 
       ThrowingCallable test = () -> new SocialSecurityNumber(invalidSsnValue);
 

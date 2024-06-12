@@ -86,144 +86,154 @@ class LoanEligibilityCalculationTest {
       .thenReturn(empty());
   }
 
-  @Test
-  @DisplayName("returns APPROVED result along with provided valid eligibility request data")
-  void returns_APPROVED_result_with_providedValidEligibilityRequestData() {
-    var validRequest = testRequest().create();
-    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 1000);
+  @Nested
+  @DisplayName("returns DENIED result")
+  class ReturnsDeniedResult {
 
-    var result = calculateLoanEligibility.on(validRequest);
+    @Test
+    @DisplayName("when credit segment for given person is not found")
+    void returns_DENIED_result_when_creditSegmentForGivenPerson_isNotFound() {
+      var validRequest = testRequest().create();
+      whenCreditSegmentNotFoundForPerson(DEFAULT_SSN);
 
-    assertThat(result)
-      .isEqualTo(expectedResult(APPROVED).eligibleLoanAmount(10_000).create());
-  }
+      var result = calculateLoanEligibility.on(validRequest);
 
-  @Test
-  @DisplayName("returns DENIED result, when credit segment for given person is not found")
-  void returns_DENIED_result_when_creditSegmentForGivenPerson_isNotFound() {
-    var validRequest = testRequest().create();
-    whenCreditSegmentNotFoundForPerson(DEFAULT_SSN);
+      assertThat(result)
+        .isEqualTo(expectedResult(DENIED).create());
+    }
 
-    var result = calculateLoanEligibility.on(validRequest);
+    @Test
+    @DisplayName("when credit segment found, but its credit modifier too low for requested loan")
+    void when_creditSegmentFound_butCreditModifierTooLowForRequestedLoan() {
+      var validRequest = testRequest().create();
+      whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 100);
 
-    assertThat(result)
-      .isEqualTo(expectedResult(DENIED).create());
-  }
+      var result = calculateLoanEligibility.on(validRequest);
 
-  @Test
-  @DisplayName("returns DENIED result, when credit segment found, but its credit modifier too low for requested loan")
-  void returns_DENIED_result_when_creditSegmentFound_butCreditModifierTooLowForRequestedLoan() {
-    var validRequest = testRequest().create();
-    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 100);
+      assertThat(result)
+        .isEqualTo(expectedResult(DENIED).eligibleLoanAmount(3599).create());
+    }
 
-    var result = calculateLoanEligibility.on(validRequest);
+    @Test
+    @DisplayName("with no eligible amount when it would be less than minimum loan amount")
+    void withNoEligibleAmount_whenItWouldBe_lessThan_MinimumLoanAmount() {
+      var validRequest = testRequest().amount(2000).period(20).create();
+      whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 100);
 
-    assertThat(result)
-      .isEqualTo(expectedResult(DENIED).eligibleLoanAmount(3599).create());
-  }
+      var result = calculateLoanEligibility.on(validRequest);
 
-  @Test
-  @DisplayName("returns DENIED result, with no eligible amount when it would be less than minimum loan amount")
-  void returns_DENIED_result_withNoEligibleAmount_whenItWouldBe_lessThan_MinimumLoanAmount() {
-    var validRequest = testRequest().amount(2000).period(20).create();
-    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 100);
-
-    var result = calculateLoanEligibility.on(validRequest);
-
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(DENIED)
-          .amount(2000)
-          .period(20)
-          .eligibleLoanAmount(null)
-          .create()
-      );
-  }
-
-  @Test
-  @DisplayName("returns DENIED result, with new eligible period (received from gateway) and amount, when no amount available for given period")
-  void returns_DENIED_result_withNewEligiblePeriodAndAmount_whenNoAmountAvailableForGivenPeriod() {
-    int shortPeriodOneYear = 12;
-    var validRequest = testRequest().amount(5000).period(shortPeriodOneYear).create();
-    int creditModifier = 100;
-    var segment = whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, creditModifier);
-    var newEligiblePeriod = whenNewEligiblePeriodDeterminedFor(validRequest, segment, 51);
-
-    var result = calculateLoanEligibility.on(validRequest);
-
-    int expectedNewEligibleLoanAmount = newEligiblePeriod * creditModifier - 1;
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(DENIED)
-          .amount(5000)
-          .period(shortPeriodOneYear)
-          .eligibleLoanAmount(expectedNewEligibleLoanAmount)
-          .eligibleLoanPeriod(newEligiblePeriod)
-          .create()
-      );
-  }
-
-  @Test
-  @DisplayName("returns DENIED result, with no new eligible period (received from gateway) nor amount, when new determined period above maximum")
-  void returns_DENIED_result_withNoNewEligiblePeriod_norAmount_whenNewDeterminedPeriodAboveMaximum() {
-    int shortPeriodOneYear = 12;
-    var validRequest = testRequest().amount(9000).period(shortPeriodOneYear).create();
-    int creditModifier = 100;
-    var segment = whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, creditModifier);
-    whenNewEligiblePeriodDeterminedFor(validRequest, segment, 91);
-
-    var result = calculateLoanEligibility.on(validRequest);
-
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(DENIED)
-          .amount(9000)
-          .period(shortPeriodOneYear)
-          .eligibleLoanAmount(null)
-          .eligibleLoanPeriod(null)
-          .create()
-      );
-  }
-
-  private int whenNewEligiblePeriodDeterminedFor(
-    LoanEligibilityRequestDTO validRequest, CreditSegment segment, Integer newEligiblePeriod
-  ) {
-    when(determineEligiblePeriod.forLoan(validRequest, segment))
-      .thenReturn(Optional.of(newEligiblePeriod));
-    return newEligiblePeriod;
-  }
-
-  @Test
-  @DisplayName("returns APPROVED result, when low credit segment found, but period is long enough (46 months)")
-  void returns_APPROVED_result_when_lowCreditSegmentFound_butPeriodIsLongEnough_fortySixMonths() {
-    int fortySixMonths = 46;
-    var validRequest = testRequest().period(fortySixMonths).create();
-    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 100);
-
-    var result = calculateLoanEligibility.on(validRequest);
-
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(APPROVED)
-          .eligibleLoanAmount(4599)
-          .period(fortySixMonths)
-          .create()
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(DENIED)
+            .amount(2000)
+            .period(20)
+            .eligibleLoanAmount(null)
+            .create()
         );
+    }
+
+    @Test
+    @DisplayName("with new eligible period (received from gateway) and amount, when no amount available for given period")
+    void withNewEligiblePeriodAndAmount_whenNoAmountAvailableForGivenPeriod() {
+      int shortPeriodOneYear = 12;
+      var validRequest = testRequest().amount(5000).period(shortPeriodOneYear).create();
+      int creditModifier = 100;
+      var segment = whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, creditModifier);
+      var newEligiblePeriod = whenNewEligiblePeriodDeterminedFor(validRequest, segment, 51);
+
+      var result = calculateLoanEligibility.on(validRequest);
+
+      int expectedNewEligibleLoanAmount = newEligiblePeriod * creditModifier - 1;
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(DENIED)
+            .amount(5000)
+            .period(shortPeriodOneYear)
+            .eligibleLoanAmount(expectedNewEligibleLoanAmount)
+            .eligibleLoanPeriod(newEligiblePeriod)
+            .create()
+        );
+    }
+
+    @Test
+    @DisplayName("with no new eligible period (received from gateway) nor amount, when new determined period above maximum")
+    void withNoNewEligiblePeriod_norAmount_whenNewDeterminedPeriodAboveMaximum() {
+      int shortPeriodOneYear = 12;
+      var validRequest = testRequest().amount(9000).period(shortPeriodOneYear).create();
+      int creditModifier = 100;
+      var segment = whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, creditModifier);
+      whenNewEligiblePeriodDeterminedFor(validRequest, segment, 91);
+
+      var result = calculateLoanEligibility.on(validRequest);
+
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(DENIED)
+            .amount(9000)
+            .period(shortPeriodOneYear)
+            .eligibleLoanAmount(null)
+            .eligibleLoanPeriod(null)
+            .create()
+        );
+    }
+
+    private int whenNewEligiblePeriodDeterminedFor(
+      LoanEligibilityRequestDTO validRequest, CreditSegment segment, Integer newEligiblePeriod
+    ) {
+      when(determineEligiblePeriod.forLoan(validRequest.loanAmount(), segment))
+        .thenReturn(Optional.of(newEligiblePeriod));
+      return newEligiblePeriod;
+    }
   }
 
-  @Test
-  @DisplayName("returns APPROVED result, when low credit segment found, but amount is small enough")
-  void returns_APPROVED_result_when_lowCreditSegmentFound_butAmountIsSmallEnough() {
-    int smallAmount = 2000;
-    var validRequest = testRequest().amount(smallAmount).create();
-    whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 60);
+  @Nested
+  @DisplayName("returns APPROVED result")
+  class ReturnsApprovedResult {
 
-    var result = calculateLoanEligibility.on(validRequest);
+    @Test
+    @DisplayName("along with provided valid eligibility request data")
+    void with_providedValidEligibilityRequestData() {
+      var validRequest = testRequest().create();
+      whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 1000);
 
-    assertThat(result)
-      .isEqualTo(
-        expectedResult(APPROVED).eligibleLoanAmount(2159).amount(smallAmount).create()
-      );
+      var result = calculateLoanEligibility.on(validRequest);
+
+      assertThat(result)
+        .isEqualTo(expectedResult(APPROVED).eligibleLoanAmount(10_000).create());
+    }
+
+    @Test
+    @DisplayName("when low credit segment found, but period is long enough (46 months)")
+    void when_lowCreditSegmentFound_butPeriodIsLongEnough_fortySixMonths() {
+      int fortySixMonths = 46;
+      var validRequest = testRequest().period(fortySixMonths).create();
+      whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 100);
+
+      var result = calculateLoanEligibility.on(validRequest);
+
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(APPROVED)
+            .eligibleLoanAmount(4599)
+            .period(fortySixMonths)
+            .create()
+        );
+    }
+
+    @Test
+    @DisplayName("when low credit segment found, but amount is small enough")
+    void when_lowCreditSegmentFound_butAmountIsSmallEnough() {
+      int smallAmount = 2000;
+      var validRequest = testRequest().amount(smallAmount).create();
+      whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 60);
+
+      var result = calculateLoanEligibility.on(validRequest);
+
+      assertThat(result)
+        .isEqualTo(
+          expectedResult(APPROVED).eligibleLoanAmount(2159).amount(smallAmount).create()
+        );
+    }
   }
 
   @Nested

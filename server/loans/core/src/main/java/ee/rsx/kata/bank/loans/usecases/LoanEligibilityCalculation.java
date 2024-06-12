@@ -127,7 +127,7 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
       return new LoanEligibility(status, null, null);
     }
     Optional<Integer> newPeriod =
-      determineEligiblePeriod.forLoan(request, segment)
+      determineEligiblePeriod.forLoan(request.loanAmount(), segment)
         .filter(period ->
           limits.minimumLoanPeriodMonths() <= period && period <= limits.maximumLoanPeriodMonths()
         );
