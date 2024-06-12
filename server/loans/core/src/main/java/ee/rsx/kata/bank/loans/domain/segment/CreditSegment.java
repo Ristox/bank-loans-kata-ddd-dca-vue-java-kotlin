@@ -10,6 +10,10 @@ public record CreditSegment(
   int creditModifier
 ) {
  public int creditModifier() {
+
    return type == DEBT ? 0 : this.creditModifier;
+ }
+ public boolean isDebt() {
+   return type == DEBT;
  }
 }

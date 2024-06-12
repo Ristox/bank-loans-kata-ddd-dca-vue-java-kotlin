@@ -23,9 +23,9 @@ class SsnValidationTest {
   @Test
   @DisplayName("result is OK, for a given valid SSN value")
   void resultIs_OK_for_givenValidSsnValue() {
-    String validSsnValue = "50212104262";
+    var validSsnValue = "50212104262";
 
-    SsnValidationResultDTO result = ssnValidation.on(validSsnValue);
+    var result = ssnValidation.on(validSsnValue);
 
     assertThat(result).isEqualTo(
       new SsnValidationResultDTO(validSsnValue, OK)
@@ -43,10 +43,10 @@ class SsnValidationTest {
     @Test
     @DisplayName("having invalid date")
     void having_invalidDate() {
-      String invalidDate = "021310";
-      String invalidSsnValue = format("5%s4262", invalidDate);
+      var invalidDate = "021310";
+      var invalidSsnValue = format("5%s4262", invalidDate);
 
-      SsnValidationResultDTO result = ssnValidation.on(invalidSsnValue);
+      var result = ssnValidation.on(invalidSsnValue);
 
       assertThat(result).isEqualTo(
         expectedInvalidResultFor(invalidSsnValue)
@@ -56,10 +56,10 @@ class SsnValidationTest {
     @Test
     @DisplayName("having invalid checksum")
     void having_invalidChecksum() {
-      String invalidChecksum = "3";
-      String invalidSsnValue = format("5021210426%s", invalidChecksum);
+      var invalidChecksum = "3";
+      var invalidSsnValue = format("5021210426%s", invalidChecksum);
 
-      SsnValidationResultDTO result = ssnValidation.on(invalidSsnValue);
+      var result = ssnValidation.on(invalidSsnValue);
 
       assertThat(result).isEqualTo(
         expectedInvalidResultFor(invalidSsnValue)
@@ -69,10 +69,10 @@ class SsnValidationTest {
     @Test
     @DisplayName("having invalid century prefix")
     void having_invalidCenturyPrefix() {
-      String invalidCenturyPrefix = "7";
-      String invalidSsnValue = format("%s0212104262", invalidCenturyPrefix);
+      var invalidCenturyPrefix = "7";
+      var invalidSsnValue = format("%s0212104262", invalidCenturyPrefix);
 
-      SsnValidationResultDTO result = ssnValidation.on(invalidSsnValue);
+      var result = ssnValidation.on(invalidSsnValue);
 
       assertThat(result).isEqualTo(
         expectedInvalidResultFor(invalidSsnValue)

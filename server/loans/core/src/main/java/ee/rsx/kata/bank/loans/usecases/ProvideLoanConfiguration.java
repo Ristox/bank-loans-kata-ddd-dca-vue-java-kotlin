@@ -1,9 +1,9 @@
 package ee.rsx.kata.bank.loans.usecases;
 
+import ee.rsx.kata.bank.loans.domain.limits.LoanLimitsConfig;
+import ee.rsx.kata.bank.loans.domain.limits.gateway.LoanConfigGateway;
 import ee.rsx.kata.bank.loans.validation.limits.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.limits.ValidationLimitsDTO;
-import ee.rsx.kata.bank.loans.domain.limits.LoanConfigGateway;
-import ee.rsx.kata.bank.loans.domain.limits.LoanLimitsConfig;
 import jakarta.inject.Named;
 import lombok.RequiredArgsConstructor;
 

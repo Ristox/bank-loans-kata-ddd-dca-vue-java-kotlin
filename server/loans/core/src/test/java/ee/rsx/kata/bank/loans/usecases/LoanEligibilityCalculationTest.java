@@ -1,5 +1,10 @@
 package ee.rsx.kata.bank.loans.usecases;
 
+import ee.rsx.kata.bank.loans.domain.limits.gateway.DetermineEligiblePeriod;
+import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
+import ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType;
+import ee.rsx.kata.bank.loans.domain.segment.gateway.FindCreditSegment;
+import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
@@ -7,11 +12,6 @@ import ee.rsx.kata.bank.loans.validation.limits.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.limits.ValidationLimitsDTO;
 import ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO;
 import ee.rsx.kata.bank.loans.validation.ssn.ValidateSocialSecurityNumber;
-import ee.rsx.kata.bank.loans.domain.DetermineEligiblePeriod;
-import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
-import ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType;
-import ee.rsx.kata.bank.loans.domain.segment.FindCreditSegment;
-import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -25,8 +25,8 @@ import org.mockito.stubbing.Answer;
 import java.util.List;
 import java.util.Optional;
 
-import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
 import static ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType.*;
+import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
 import static ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO.*;
 import static java.util.Arrays.stream;
 import static java.util.Optional.empty;
@@ -218,7 +218,7 @@ class LoanEligibilityCalculationTest {
     var validRequest = testRequest().amount(smallAmount).create();
     whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 60);
 
-    LoanEligibilityResultDTO result = calculateLoanEligibility.on(validRequest);
+    var result = calculateLoanEligibility.on(validRequest);
 
     assertThat(result)
       .isEqualTo(

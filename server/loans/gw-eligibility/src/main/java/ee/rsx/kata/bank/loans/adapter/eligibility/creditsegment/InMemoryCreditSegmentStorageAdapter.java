@@ -2,7 +2,7 @@ package ee.rsx.kata.bank.loans.adapter.eligibility.creditsegment;
 
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType;
-import ee.rsx.kata.bank.loans.domain.segment.FindCreditSegment;
+import ee.rsx.kata.bank.loans.domain.segment.gateway.FindCreditSegment;
 import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import jakarta.inject.Named;
 

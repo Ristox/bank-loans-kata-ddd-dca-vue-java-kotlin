@@ -1,8 +1,8 @@
 package ee.rsx.kata.bank.loans.adapter.eligibility.eligibleperiod;
 
-import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
-import ee.rsx.kata.bank.loans.domain.DetermineEligiblePeriod;
+import ee.rsx.kata.bank.loans.domain.limits.gateway.DetermineEligiblePeriod;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import jakarta.inject.Named;
 
 import java.util.Optional;

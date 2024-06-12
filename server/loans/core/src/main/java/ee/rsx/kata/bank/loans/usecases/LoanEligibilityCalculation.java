@@ -1,5 +1,10 @@
 package ee.rsx.kata.bank.loans.usecases;
 
+import ee.rsx.kata.bank.loans.domain.LoanEligibility;
+import ee.rsx.kata.bank.loans.domain.limits.gateway.DetermineEligiblePeriod;
+import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
+import ee.rsx.kata.bank.loans.domain.segment.gateway.FindCreditSegment;
+import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import ee.rsx.kata.bank.loans.eligibility.CalculateLoanEligibility;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
@@ -7,11 +12,6 @@ import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
 import ee.rsx.kata.bank.loans.validation.limits.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.limits.ValidationLimitsDTO;
 import ee.rsx.kata.bank.loans.validation.ssn.ValidateSocialSecurityNumber;
-import ee.rsx.kata.bank.loans.domain.DetermineEligiblePeriod;
-import ee.rsx.kata.bank.loans.domain.LoanEligibility;
-import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
-import ee.rsx.kata.bank.loans.domain.segment.FindCreditSegment;
-import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import jakarta.annotation.Nullable;
 import jakarta.inject.Named;
 import lombok.RequiredArgsConstructor;
@@ -22,8 +22,6 @@ import java.util.stream.Stream;
 
 import static ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.*;
 import static ee.rsx.kata.bank.loans.validation.ssn.ValidationStatus.OK;
-import static ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType.DEBT;
-import static java.util.Objects.*;
 import static java.util.Optional.*;
 import static org.apache.commons.collections4.CollectionUtils.isEmpty;
 
@@ -56,7 +54,10 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
     );
   }
 
-  private @Nullable List<String> validate(LoanEligibilityRequestDTO eligibilityRequest, ValidationLimitsDTO limits) {
+  private @Nullable List<String> validate(
+    LoanEligibilityRequestDTO eligibilityRequest,
+    ValidationLimitsDTO limits
+  ) {
     List<String> errors = Stream.of(
         checkForSsnErrorIn(eligibilityRequest),
         checkForAmountErrorIn(eligibilityRequest, limits),
@@ -101,40 +102,59 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
     var ssn = new SocialSecurityNumber(request.ssn());
     Optional<CreditSegment> creditSegment = findCreditSegment.forPerson(ssn);
 
-    var status = creditSegment.map(segment -> determineEligibilityStatusFor(request, segment))
-      .orElse(DENIED);
+    return creditSegment
+      .map(segment -> {
+        var status = determineEligibilityStatusFor(request, segment);
 
-    var amount = creditSegment.map(segment -> determineEligibleAmountFor(limits, segment, request.loanPeriodMonths()))
-      .orElse(null);
+        return determineEligibleAmountFor(limits, segment, request.loanPeriodMonths())
+          .map(eligibleAmount -> new LoanEligibility(status, eligibleAmount, null))
+          .orElseGet(
+            () -> recalculateEligibilityFor(request, limits, segment, status)
+          );
+      })
+      .orElseGet(
+        () -> new LoanEligibility(DENIED, null, null)
+      );
+  }
 
-    final var initialAmount = amount;
-    Integer newPeriod = creditSegment
-      .filter(segment -> segment.type() != DEBT && isNull(initialAmount))
-      .flatMap(segment -> determineEligiblePeriod.forLoan(request, segment))
-      .filter(calculatedPeriod ->
-        limits.minimumLoanPeriodMonths() <= calculatedPeriod && calculatedPeriod <= limits.maximumLoanPeriodMonths()
-      )
-      .orElse(null);
-
-    if (nonNull(newPeriod)) {
-      amount = creditSegment.map(segment -> determineEligibleAmountFor(limits, segment, newPeriod))
-        .orElse(null);
+  private LoanEligibility recalculateEligibilityFor(
+    LoanEligibilityRequestDTO request,
+    ValidationLimitsDTO limits,
+    CreditSegment segment,
+    LoanEligibilityStatus status
+  ) {
+    if (segment.isDebt()) {
+      return new LoanEligibility(status, null, null);
     }
+    Optional<Integer> newPeriod =
+      determineEligiblePeriod.forLoan(request, segment)
+        .filter(period ->
+          limits.minimumLoanPeriodMonths() <= period && period <= limits.maximumLoanPeriodMonths()
+        );
 
-    return new LoanEligibility(status, amount, newPeriod);
+    Optional<Integer> newAmount =
+      newPeriod.flatMap(period -> determineEligibleAmountFor(limits, segment, period));
+
+    return new LoanEligibility(status, newAmount.orElse(null), newPeriod.orElse(null));
   }
 
-  private LoanEligibilityStatus determineEligibilityStatusFor(LoanEligibilityRequestDTO request, CreditSegment creditSegment) {
-    double creditScore = (double) creditSegment.creditModifier() / request.loanAmount() * request.loanPeriodMonths();
-    return creditScore > 1 ? APPROVED : DENIED;
+  private LoanEligibilityStatus determineEligibilityStatusFor(
+    LoanEligibilityRequestDTO request, CreditSegment creditSegment
+  ) {
+    double creditScore =
+      (double) creditSegment.creditModifier() / request.loanAmount() * request.loanPeriodMonths();
+
+    return (!creditSegment.isDebt() && creditScore > 1) ? APPROVED : DENIED;
   }
 
-  private Integer determineEligibleAmountFor(ValidationLimitsDTO limits, CreditSegment creditSegment, Integer loanPeriodMonths) {
+  private Optional<Integer> determineEligibleAmountFor(
+    ValidationLimitsDTO limits, CreditSegment creditSegment, Integer loanPeriodMonths
+  ) {
     int eligibleAmount = Math.min(
       limits.maximumLoanAmount(),
       creditSegment.creditModifier() * loanPeriodMonths - 1
     );
 
-    return eligibleAmount >= limits.minimumLoanAmount() ? eligibleAmount : null;
+    return eligibleAmount >= limits.minimumLoanAmount() ? of(eligibleAmount) : empty();
   }
 }

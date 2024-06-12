@@ -1,7 +1,7 @@
 package ee.rsx.kata.bank.loans.adapter.validation;
 
-import ee.rsx.kata.bank.loans.domain.limits.LoanConfigGateway;
 import ee.rsx.kata.bank.loans.domain.limits.LoanLimitsConfig;
+import ee.rsx.kata.bank.loans.domain.limits.gateway.LoanConfigGateway;
 import jakarta.inject.Named;
 
 @Named
