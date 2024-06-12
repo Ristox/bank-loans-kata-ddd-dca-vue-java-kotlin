@@ -15,11 +15,16 @@
 
 **From project root -**
 
-0. Make sure your command line terminal is using node v18.8 or higher (run `node -v`)
+1. Make sure your command line / terminal is using
+   * node v18.8 or higher (run `node -v`)
+   * java v17 or higher (run `java --version`)
+  
 
-1. Execute `npm run build`
-2. Then execute `npm start` (runs both the UI and the backend server)
-3. Application UI is available at http://localhost:8088
-4. Server API is available at http://localhost:8088/api/ or http://localhost:8088/api/  
-   (root URL does not have a service mapping)
+2. Execute `run.sh` (builds and runs the UI and the server)
+   * or, execute `npm run build`, followed by `npm start`
+  
+
+3. Application UI is available at http://localhost:8088  
+   Server API is available at http://localhost:8088/api/ or http://localhost:8088/api  
+   (root API URL does not have a service mapping)
 
