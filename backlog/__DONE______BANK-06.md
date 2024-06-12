@@ -41,5 +41,9 @@ I.e.:
     * In UI, show the new eligible period, when its calculated - along with the eligible amount.  
 
 
-* **\[ O ] BANK-06-D: architecture restructuring + technical refactorings**
-    *   
+* **\[ OK ] BANK-06-D: architecture restructuring + technical refactorings**
+    * Modularize the application - create separate modules for app runnable and loans functionality.
+    * Split loans module into a) public API b) internal core implementation and c) infrastructure adapters  
+      (submodules)
+    * Simplify running the whole project in preview / prod mode, via a single command (`run.sh`)
+    * Finalize README.md

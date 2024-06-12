@@ -41,7 +41,7 @@
    now I should additionally receive details of maximum available loan amount
 
 
-### [\[ O \] BANK-06: Personalized loan eligibility result, with loan period availability details](backlog/___ONGOING__BANK-06.md) 
+### [\[ OK \] BANK-06: Personalized loan eligibility result, with loan period availability details](backlog/__DONE______BANK-06.md) 
 
    As a user, I want to be able to submit valid personal code (SSN), loan amount (in Euros)  
    and period (in months), but receive a different available loan period than requested,  
