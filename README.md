@@ -17,7 +17,7 @@
 
 1. Make sure your command line / terminal is using
    * node v18.8 or higher (run `node -v`)
-   * java v17 or higher (run `java --version`)
+   * java v17 or higher (run `java -version`)
   
 
 2. Execute `run.sh` (builds and runs the UI and the server)
