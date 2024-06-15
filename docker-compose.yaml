@@ -1,0 +1,29 @@
+version: "3.7"
+
+services:
+  
+  rsx-bank-loans:
+    build:
+      context: ./server
+    image: ee-rsx-kata-bank-loans
+    restart: always
+    expose:
+      - "8080"
+    networks:
+      - rsx-bank-network 
+
+  rsx-bank-loans-web:
+    build: 
+      context: ./ui
+    restart: always
+    ports:
+      - "0.0.0.0:80:80"
+    networks:
+      - rsx-bank-network
+    depends_on:
+      - rsx-bank-loans
+
+
+networks:  
+  rsx-bank-network: {}
+
