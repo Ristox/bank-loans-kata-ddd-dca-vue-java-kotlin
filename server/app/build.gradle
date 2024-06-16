@@ -1,6 +1,6 @@
 plugins {
-  id 'org.springframework.boot' version '3.3.0'
-  id 'io.spring.dependency-management' version '1.1.5'
+  id 'org.springframework.boot' version "${springBootVersion}"
+  id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
 }
 group = 'ee.rsx.kata.bank'
 version = '1.0.0-SNAPSHOT'
