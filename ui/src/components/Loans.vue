@@ -109,9 +109,9 @@ export default {
   data() {
     const schema = yup.object()
       .shape({
-        ssn: validateSsnField.call(this),
-        loanAmount: validateLoanAmountField.call(this),
-        loanPeriodMonths: validateLoanPeriodField.call(this)
+        ssn: validateSsnField(this),
+        loanAmount: validateLoanAmountField(this),
+        loanPeriodMonths: validateLoanPeriodField(this)
       });
 
     return {
@@ -204,18 +204,18 @@ export default {
   },
 };
 
-function validateSsnField(): NumberSchema {
+function validateSsnField(thisComponent: any): NumberSchema {
   return yup.number()
     .typeError('Please enter a valid number')
     .required("Please enter a personal code (SSN)")
     .test(
         'validateSocialSecurityNumber',
         'Personal code (SSN) is not valid',
-        async (value) => await this.validateSocialSecurityNumber(value)
+        async (value) => await thisComponent.validateSocialSecurityNumber(value)
     );
 }
 
-function validateLoanAmountField(): NumberSchema {
+function validateLoanAmountField(thisComponent: any): NumberSchema {
   return yup.number()
       .typeError('Please enter a valid number')
       .required("Please enter a loan amount")
@@ -223,19 +223,19 @@ function validateLoanAmountField(): NumberSchema {
           "minimumLoanAmount",
           "Loan amount is below minimum allowed",
           (value) => {
-            return value >= this.getValidationLimits().minimumLoanAmount
+            return value >= thisComponent.getValidationLimits().minimumLoanAmount
           }
       )
       .test(
           "maximumLoanAmount",
           "Loan amount is above maximum allowed",
           (value) => {
-            return value <= this.getValidationLimits().maximumLoanAmount
+            return value <= thisComponent.getValidationLimits().maximumLoanAmount
           }
       );
 }
 
-function validateLoanPeriodField(): NumberSchema {
+function validateLoanPeriodField(thisComponent: any): NumberSchema {
   return yup.number()
       .typeError('Please enter a valid number')
       .required("Please enter a loan period")
@@ -243,14 +243,14 @@ function validateLoanPeriodField(): NumberSchema {
           "minimumLoanPeriod",
           "Loan period is below minimum allowed",
           (value) => {
-            return value >= this.getValidationLimits().minimumLoanPeriodMonths
+            return value >= thisComponent.getValidationLimits().minimumLoanPeriodMonths
           }
       )
       .test(
           "maximumLoanPeriod",
           "Loan period is above maximum allowed",
           (value) => {
-            return value <= this.getValidationLimits().maximumLoanPeriodMonths
+            return value <= thisComponent.getValidationLimits().maximumLoanPeriodMonths
           }
       );
 }
