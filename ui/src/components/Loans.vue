@@ -2,6 +2,7 @@
   <div class="col-md-12">
     <div class="card card-container">
       <Form @submit="doSubmit" :validation-schema="schema">
+
         <div class="form-group required">
           <label for="ssn">SSN (personal code)</label>
           <Field name="ssn" type="text" class="form-control"/>
@@ -43,10 +44,12 @@
                   'alert-success': loanApproved,
                   'alert-warning': loanDenied,
                   'alert-danger': loanInvalid }">
+
             <div class="result-line">
               <span class="result-heading">Loan request: </span>
               <span class="result-detail highlight">{{ eligibilityResponse.result }}</span>
             </div>
+
             <div v-if="eligibilityResponse.errors" class="result-line">
               <div class="result-line">Errors:</div>
               <ul>
@@ -54,28 +57,32 @@
                   {{ error }}
                 </li>
               </ul>
-
             </div>
+
             <div class="result-line">
               <span class="result-heading">Requested amount: </span>
               <span class="result-detail">{{ eligibilityResponse.loanAmount }} €</span>
             </div>
+
             <div class="result-line">
               <span class="result-heading">Requested period: </span>
               <span class="result-detail">{{ eligibilityResponse.loanPeriodMonths }} months</span>
             </div>
+
             <div v-if="eligibilityResponse.eligibleLoanAmount != null" class="result-line">
               <hr />
               <span class="result-heading" v-if="loanApproved">Offered amount: </span>
               <span class="result-heading" v-else-if="loanDenied">Eligible amount: </span>
               <span class="result-detail highlight">{{ eligibilityResponse.eligibleLoanAmount }} €</span>
             </div>
+
             <div v-if="eligibilityResponse.eligibleLoanPeriod != null" class="result-line">
               <span class="result-heading">Eligible period: </span>
               <span class="result-detail highlight">{{ eligibilityResponse.eligibleLoanPeriod }} months</span>
             </div>
           </div>
         </div>
+
       </Form>
     </div>
   </div>
@@ -85,7 +92,7 @@
 <script lang="ts">
 import {ErrorMessage, Field, Form} from 'vee-validate';
 import * as yup from 'yup';
-import {ValidationError} from 'yup';
+import {NumberSchema, ValidationError} from 'yup';
 import server, {COMPLETE_SSN_LENGTH} from "../server/server";
 import {ValidationStatus} from "../models/SsnValidationResult";
 import ValidationLimits from "../models/ValidationLimits";
@@ -102,53 +109,9 @@ export default {
   data() {
     const schema = yup.object()
       .shape({
-        ssn:
-          yup.number()
-            .typeError('Please enter a valid number')
-            .required("Please enter a personal code (SSN)")
-            .test(
-              'validateSocialSecurityNumber',
-              'Personal code (SSN) is not valid',
-              async (value) => await this.validateSocialSecurityNumber(value)
-            ),
-
-        loanAmount:
-          yup.number()
-            .typeError('Please enter a valid number')
-            .required("Please enter a loan amount")
-              .test(
-                  "minimumLoanAmount",
-                  "Loan amount is below minimum allowed",
-                  (value) => {
-                    return value >= this.getValidationLimits().minimumLoanAmount
-                  }
-              )
-              .test(
-                  "maximumLoanAmount",
-                  "Loan amount is above maximum allowed",
-                  (value) => {
-                    return value <= this.getValidationLimits().maximumLoanAmount
-                  }
-              ),
-
-        loanPeriodMonths:
-          yup.number()
-            .typeError('Please enter a valid number')
-            .required("Please enter a loan period")
-            .test(
-                "minimumLoanPeriod",
-                "Loan period is below minimum allowed",
-                (value) => {
-                  return value >= this.getValidationLimits().minimumLoanPeriodMonths
-                }
-            )
-            .test(
-                "maximumLoanPeriod",
-                "Loan period is above maximum allowed",
-                (value) => {
-                  return value <= this.getValidationLimits().maximumLoanPeriodMonths
-                }
-            )
+        ssn: validateSsnField.call(this),
+        loanAmount: validateLoanAmountField.call(this),
+        loanPeriodMonths: validateLoanPeriodField.call(this)
       });
 
     return {
@@ -240,6 +203,57 @@ export default {
     },
   },
 };
+
+function validateSsnField(): NumberSchema {
+  return yup.number()
+    .typeError('Please enter a valid number')
+    .required("Please enter a personal code (SSN)")
+    .test(
+        'validateSocialSecurityNumber',
+        'Personal code (SSN) is not valid',
+        async (value) => await this.validateSocialSecurityNumber(value)
+    );
+}
+
+function validateLoanAmountField(): NumberSchema {
+  return yup.number()
+      .typeError('Please enter a valid number')
+      .required("Please enter a loan amount")
+      .test(
+          "minimumLoanAmount",
+          "Loan amount is below minimum allowed",
+          (value) => {
+            return value >= this.getValidationLimits().minimumLoanAmount
+          }
+      )
+      .test(
+          "maximumLoanAmount",
+          "Loan amount is above maximum allowed",
+          (value) => {
+            return value <= this.getValidationLimits().maximumLoanAmount
+          }
+      );
+}
+
+function validateLoanPeriodField(): NumberSchema {
+  return yup.number()
+      .typeError('Please enter a valid number')
+      .required("Please enter a loan period")
+      .test(
+          "minimumLoanPeriod",
+          "Loan period is below minimum allowed",
+          (value) => {
+            return value >= this.getValidationLimits().minimumLoanPeriodMonths
+          }
+      )
+      .test(
+          "maximumLoanPeriod",
+          "Loan period is above maximum allowed",
+          (value) => {
+            return value <= this.getValidationLimits().maximumLoanPeriodMonths
+          }
+      );
+}
 </script>
 
 <style scoped>
