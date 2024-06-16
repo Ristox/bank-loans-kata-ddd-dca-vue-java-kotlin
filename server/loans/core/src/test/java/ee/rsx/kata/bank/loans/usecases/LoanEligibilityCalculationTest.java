@@ -92,7 +92,7 @@ class LoanEligibilityCalculationTest {
 
     @Test
     @DisplayName("when credit segment for given person is not found")
-    void returns_DENIED_result_when_creditSegmentForGivenPerson_isNotFound() {
+    void when_creditSegmentForGivenPerson_isNotFound() {
       var validRequest = testRequest().create();
       whenCreditSegmentNotFoundForPerson(DEFAULT_SSN);
 
@@ -106,7 +106,8 @@ class LoanEligibilityCalculationTest {
     @DisplayName("when credit segment found, but its credit modifier too low for requested loan")
     void when_creditSegmentFound_butCreditModifierTooLowForRequestedLoan() {
       var validRequest = testRequest().create();
-      whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 100);
+      int tooLowCreditModifier = 100;
+      whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, tooLowCreditModifier);
 
       var result = calculateLoanEligibility.on(validRequest);
 
