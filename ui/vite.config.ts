@@ -3,13 +3,13 @@ import vue from '@vitejs/plugin-vue'
 import path from 'path';
 
 export default defineConfig({
-    // root: path.resolve(__dirname, 'src'),
     plugins: [vue()],
     resolve: {
         alias: {
             '~bootstrap': path.resolve(__dirname, 'node_modules/bootstrap'),
         }
     },
+    base: process.env.VITE_BASE_URL,
     server: {
       proxy: {
         '/api': {
