@@ -18,7 +18,7 @@ internal class FirstEligiblePeriodAdapter : DetermineEligiblePeriod {
       of(calculateFirstMinimumPeriodEligibleFor(amount, creditSegment))
 
   private fun calculateFirstMinimumPeriodEligibleFor(amount: Int, creditSegment: CreditSegment): Int {
-    val firstPeriod = floor(amount.toDouble() / creditSegment.creditModifier())
+    val firstPeriod = floor(amount.toDouble() / creditSegment.creditModifier)
     return firstPeriod.toInt() + 1
   }
 }

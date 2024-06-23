@@ -142,7 +142,7 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
     LoanEligibilityRequestDTO request, CreditSegment creditSegment
   ) {
     double creditScore =
-      (double) creditSegment.creditModifier() / request.loanAmount() * request.loanPeriodMonths();
+      (double) creditSegment.getCreditModifier() / request.loanAmount() * request.loanPeriodMonths();
 
     return (!creditSegment.isDebt() && creditScore > 1) ? APPROVED : DENIED;
   }
@@ -152,7 +152,7 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
   ) {
     int eligibleAmount = Math.min(
       limits.maximumLoanAmount(),
-      creditSegment.creditModifier() * loanPeriodMonths - 1
+      creditSegment.getCreditModifier() * loanPeriodMonths - 1
     );
 
     return eligibleAmount >= limits.minimumLoanAmount() ? of(eligibleAmount) : empty();
