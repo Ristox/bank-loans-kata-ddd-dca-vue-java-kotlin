@@ -1,11 +1,8 @@
-package ee.rsx.kata.bank.loans.domain.limits.gateway;
+package ee.rsx.kata.bank.loans.domain.limits.gateway
 
-import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
+import ee.rsx.kata.bank.loans.domain.segment.CreditSegment
+import java.util.*
 
-import java.util.Optional;
-
-@FunctionalInterface
-public interface DetermineEligiblePeriod {
-
-  Optional<Integer> forLoan(Integer amount, CreditSegment creditSegment);
+fun interface DetermineEligiblePeriod {
+  fun forLoan(amount: Int, creditSegment: CreditSegment): Optional<Int>
 }

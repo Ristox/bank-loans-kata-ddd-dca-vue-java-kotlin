@@ -1,10 +1,9 @@
-package ee.rsx.kata.bank.loans.domain;
+package ee.rsx.kata.bank.loans.domain.limits.gateway
 
-import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
-import jakarta.annotation.Nullable;
+import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus
 
-public record LoanEligibility(
-  LoanEligibilityStatus status,
-  @Nullable Integer eligibleAmount,
-  @Nullable Integer eligiblePeriod
-) {}
+data class LoanEligibility(
+  val status: LoanEligibilityStatus,
+  val eligibleAmount: Int? = null,
+  val eligiblePeriod: Int? = null
+)
