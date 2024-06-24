@@ -1,199 +1,197 @@
-package ee.rsx.kata.bank.app.integrationtest.loans.eligibility;
+package ee.rsx.kata.bank.app.integrationtest.loans.eligibility
 
-import ee.rsx.kata.bank.app.Server;
-import jakarta.inject.Inject;
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+import ee.rsx.kata.bank.app.Server
+import jakarta.inject.Inject
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Test
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
+import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.test.web.servlet.MockMvc
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.content
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers.status
 
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.MediaType.APPLICATION_JSON;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
-
-@SpringBootTest(webEnvironment = RANDOM_PORT, classes = {Server.class})
+@SpringBootTest(webEnvironment = RANDOM_PORT, classes = [Server::class])
 @AutoConfigureMockMvc
 @DisplayName("Loan eligibility calculation")
-public class LoanEligibilityIntegrationTest {
+class LoanEligibilityIntegrationTest {
 
-  private static final String LOAN_ELIGIBILITY_URL = "/loans/eligibility";
+  companion object {
+    private const val LOAN_ELIGIBILITY_URL = "/loans/eligibility"
+  }
 
   @Inject
-  private MockMvc mockMvc;
+  private lateinit var mockMvc: MockMvc
 
   @Test
-  @DisplayName("returns an DENIED eligibility result for the provided loan request, since person is in DEBT")
-  void returns_DENIED_result_forProvidedLoanRequest_sincePersonInDebt() throws Exception {
-    var personInDebt = "49002010965";
-    var loanEligibilityRequest = """
+  fun `returns an DENIED eligibility result for the provided loan request, since person is in DEBT`() {
+    val personInDebt = "49002010965"
+    val loanEligibilityRequest = """
         {
-          "ssn": "%s",
+          "ssn": "$personInDebt",
           "loanAmount": 4500,
           "loanPeriodMonths": 36
         }
-      """.formatted(personInDebt);
-    var postRequest =
-      post(LOAN_ELIGIBILITY_URL)
-        .contentType(APPLICATION_JSON)
-        .content(loanEligibilityRequest);
+      
+      """.trimIndent()
 
-    var notAcceptableStatus = status().isNotAcceptable();
+    val postRequest = post(LOAN_ELIGIBILITY_URL)
+      .contentType(APPLICATION_JSON)
+      .content(loanEligibilityRequest)
+
+    val notAcceptableStatus = status().isNotAcceptable()
     mockMvc.perform(postRequest)
       .andExpect(notAcceptableStatus)
       .andExpect(
         content().json(
           """
-              {
-                "result": "DENIED",
-                "ssn": "%s",
-                "loanAmount": 4500,
-                "loanPeriodMonths": 36
-              }
-            """.formatted(personInDebt)
+            {
+              "result": "DENIED",
+              "ssn": "$personInDebt",
+              "loanAmount": 4500,
+              "loanPeriodMonths": 36
+            }
+            """.trimIndent()
         )
-      );
+      )
   }
 
   @Test
-  @DisplayName("returns an APPROVED eligibility result for the provided loan request, since person is in high SEGMENT 3")
-  void returns_APPROVED_result_forProvidedLoanRequest_sincePersonInHighCreditSegment() throws Exception {
-    var highCreditPerson = "49002010998";
-    var loanEligibilityRequest = """
+  fun `returns an APPROVED eligibility result for the provided loan request, since person is in high SEGMENT 3`() {
+    val highCreditPerson = "49002010998"
+    val loanEligibilityRequest = """
         {
-          "ssn": "%s",
+          "ssn": "$highCreditPerson",
           "loanAmount": 4500,
           "loanPeriodMonths": 36
         }
-      """.formatted(highCreditPerson);
-    var postRequest =
-      post(LOAN_ELIGIBILITY_URL)
-        .contentType(APPLICATION_JSON)
-        .content(loanEligibilityRequest);
+        """.trimIndent()
+
+    val postRequest = post(LOAN_ELIGIBILITY_URL)
+      .contentType(APPLICATION_JSON)
+      .content(loanEligibilityRequest)
 
     mockMvc.perform(postRequest)
       .andExpect(status().isOk())
       .andExpect(
         content().json(
           """
-              {
-                "result": "APPROVED",
-                "ssn": "%s",
-                "loanAmount": 4500,
-                "loanPeriodMonths": 36,
-                "eligibleLoanAmount": 10000
-              }
-            """.formatted(highCreditPerson)
+            {
+              "result": "APPROVED",
+              "ssn": "$highCreditPerson",
+              "loanAmount": 4500,
+              "loanPeriodMonths": 36,
+              "eligibleLoanAmount": 10000
+            }
+          """.trimIndent()
         )
-      );
+      )
   }
 
   @Test
-  @DisplayName("returns an APPROVED eligibility result for the provided loan request, since person is in good SEGMENT 2")
-  void returns_APPROVED_result_forProvidedLoanRequest_sincePersonInGoodCreditSegment() throws Exception {
-    var goodCreditPerson = "49002010987";
-    var loanEligibilityRequest = """
+  fun `returns an APPROVED eligibility result for the provided loan request, since person is in good SEGMENT 2`() {
+    val goodCreditPerson = "49002010987"
+    val loanEligibilityRequest = """
         {
-          "ssn": "%s",
+          "ssn": "$goodCreditPerson",
           "loanAmount": 4500,
           "loanPeriodMonths": 36
         }
-      """.formatted(goodCreditPerson);
-    var postRequest =
-      post(LOAN_ELIGIBILITY_URL)
-        .contentType(APPLICATION_JSON)
-        .content(loanEligibilityRequest);
+      
+      """.trimIndent()
+
+    val postRequest = post(LOAN_ELIGIBILITY_URL)
+      .contentType(APPLICATION_JSON)
+      .content(loanEligibilityRequest)
 
     mockMvc.perform(postRequest)
       .andExpect(status().isOk())
       .andExpect(
         content().json(
           """
-              {
-                "result": "APPROVED",
-                "ssn": "%s",
-                "loanAmount": 4500,
-                "loanPeriodMonths": 36
-              }
-            """.formatted(goodCreditPerson)
+            {
+              "result": "APPROVED",
+              "ssn": "$goodCreditPerson",
+              "loanAmount": 4500,
+              "loanPeriodMonths": 36
+            }
+          """.trimIndent()
         )
-      );
+      )
   }
 
   @Test
-  @DisplayName("returns a DENIED eligibility result for the provided loan request, since person is in low SEGMENT 1")
-  void returns_DENIED_result_forProvidedLoanRequest_sincePersonInLowCreditSegment() throws Exception {
-    var lowCreditPerson = "49002010976";
-    var loanEligibilityRequest = """
+  fun `returns a DENIED eligibility result for the provided loan request, since person is in low SEGMENT 1`() {
+    val lowCreditPerson = "49002010976"
+    val loanEligibilityRequest = """
         {
-          "ssn": "%s",
+          "ssn": "$lowCreditPerson",
           "loanAmount": 4500,
           "loanPeriodMonths": 36
         }
-      """.formatted(lowCreditPerson);
-    var postRequest =
-      post(LOAN_ELIGIBILITY_URL)
-        .contentType(APPLICATION_JSON)
-        .content(loanEligibilityRequest);
+      
+      """.trimIndent()
 
-    var notAcceptableStatus = status().isNotAcceptable();
+    val postRequest = post(LOAN_ELIGIBILITY_URL)
+      .contentType(APPLICATION_JSON)
+      .content(loanEligibilityRequest)
+
+    val notAcceptableStatus = status().isNotAcceptable()
     mockMvc.perform(postRequest)
       .andExpect(notAcceptableStatus)
-      .andDo(MockMvcResultHandlers.print())
       .andExpect(
         content().json(
           """
-              {
-                "result": "DENIED",
-                "ssn": "%s",
-                "loanAmount": 4500,
-                "loanPeriodMonths": 36,
-                "eligibleLoanAmount": 3599
-              }
-            """.formatted(lowCreditPerson)
+            {
+              "result": "DENIED",
+              "ssn": "$lowCreditPerson",
+              "loanAmount": 4500,
+              "loanPeriodMonths": 36,
+              "eligibleLoanAmount": 3599
+            }
+          """.trimIndent()
         )
-      );
+      )
   }
 
   @Test
-  @DisplayName("returns an INVALID result with validation error details, for an invalid loan request")
-  void returns_INVALID_result_with_validationErrorDetails_forInvalidLoanRequest() throws Exception {
-    var ssnWithInvalidChecksum = "49002010968";
-    var tooSmallLoanAmount = 1500;
-    var tooLargeLoanPeriod = 61;
-    var loanEligibilityRequest = """
+  fun `returns an INVALID result with validation error details, for an invalid loan request`() {
+    val ssnWithInvalidChecksum = "49002010968"
+    val tooSmallLoanAmount = 1500
+    val tooLargeLoanPeriod = 61
+    val loanEligibilityRequest = """
         {
-          "ssn": "%s",
-          "loanAmount": %s,
-          "loanPeriodMonths": %s
+          "ssn": "$ssnWithInvalidChecksum",
+          "loanAmount": $tooSmallLoanAmount,
+          "loanPeriodMonths": $tooLargeLoanPeriod
         }
-      """.formatted(ssnWithInvalidChecksum, tooSmallLoanAmount, tooLargeLoanPeriod);
+      
+      """.trimIndent()
 
-    var postRequest =
-      post(LOAN_ELIGIBILITY_URL)
-        .contentType(APPLICATION_JSON)
-        .content(loanEligibilityRequest);
+    val postRequest = post(LOAN_ELIGIBILITY_URL)
+      .contentType(APPLICATION_JSON)
+      .content(loanEligibilityRequest)
 
     mockMvc.perform(postRequest)
       .andExpect(status().isBadRequest())
       .andExpect(
         content().json(
           """
-              {
-                "result": "INVALID",
-                "errors": [
-                  "SSN is not valid",
-                  "Loan amount is less than minimum required",
-                  "Loan period is more than maximum allowed"
-                ],
-                "ssn": "%s",
-                "loanAmount": %s,
-                "loanPeriodMonths": %s
-              }
-            """.formatted(ssnWithInvalidChecksum, tooSmallLoanAmount, tooLargeLoanPeriod)
+            {
+              "result": "INVALID",
+              "errors": [
+                "SSN is not valid",
+                "Loan amount is less than minimum required",
+                "Loan period is more than maximum allowed"
+              ],
+              "ssn": "$ssnWithInvalidChecksum",
+              "loanAmount": $tooSmallLoanAmount,
+              "loanPeriodMonths": $tooLargeLoanPeriod
+            }
+          """.trimIndent()
         )
-      );
+      )
   }
 }

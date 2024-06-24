@@ -1,7 +1,11 @@
+import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+
 plugins {
+  id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}"
   id 'org.springframework.boot' version "${springBootVersion}"
   id 'io.spring.dependency-management' version "${springDependencyManagementVersion}"
 }
+
 group = 'ee.rsx.kata.bank'
 version = '1.0.0-SNAPSHOT'
 
@@ -14,3 +18,14 @@ dependencies {
   testImplementation "com.tngtech.archunit:archunit-junit5:${archUnitVersion}"
 }
 
+compileKotlin {
+  compilerOptions {
+    jvmTarget = JVM_17
+  }
+}
+
+compileTestKotlin {
+  compilerOptions {
+    jvmTarget = JVM_17
+  }
+}

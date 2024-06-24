@@ -1,14 +1,11 @@
-package ee.rsx.kata.bank.app;
+package ee.rsx.kata.bank.app
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.ComponentScan;
+import org.springframework.boot.autoconfigure.SpringBootApplication
+import org.springframework.boot.runApplication
 
-@SpringBootApplication
-@ComponentScan("ee.rsx.kata.bank")
-public class Server {
+@SpringBootApplication(scanBasePackages = ["ee.rsx.kata.bank"])
+open class Server
 
-  public static void main(String[] args) {
-    SpringApplication.run(Server.class, args);
-  }
+fun main(vararg args: String) {
+  runApplication<Server>(*args)
 }
