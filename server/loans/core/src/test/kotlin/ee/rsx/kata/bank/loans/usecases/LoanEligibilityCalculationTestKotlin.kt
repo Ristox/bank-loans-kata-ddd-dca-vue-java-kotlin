@@ -15,8 +15,8 @@ import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.DENIED
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus.INVALID
 import ee.rsx.kata.bank.loans.validation.limits.LoadValidationLimits
 import ee.rsx.kata.bank.loans.validation.limits.ValidationLimitsDTO
-import ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO.invalidResultWith
-import ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO.okResultWith
+import ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO.Companion.invalidResultWith
+import ee.rsx.kata.bank.loans.validation.ssn.SsnValidationResultDTO.Companion.okResultWith
 import ee.rsx.kata.bank.loans.validation.ssn.ValidateSocialSecurityNumber
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach

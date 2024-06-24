@@ -27,7 +27,7 @@ public class LoanEligibilityEndpoint {
   ) {
     var eligibility = calculateLoanEligibility.on(request);
 
-    var httpStatus = switch (eligibility.result()) {
+    var httpStatus = switch (eligibility.getResult()) {
       case APPROVED -> OK;
       case INVALID -> BAD_REQUEST;
       case DENIED -> NOT_ACCEPTABLE;

@@ -1,14 +1,14 @@
-package ee.rsx.kata.bank.loans.validation.ssn;
+package ee.rsx.kata.bank.loans.validation.ssn
 
-import static ee.rsx.kata.bank.loans.validation.ssn.ValidationStatus.INVALID;
+@JvmRecord
+data class SsnValidationResultDTO(val ssn: String, val status: ValidationStatus) {
+  companion object {
+    fun okResultWith(ssn: String): SsnValidationResultDTO {
+      return SsnValidationResultDTO(ssn, ValidationStatus.OK)
+    }
 
-public record SsnValidationResultDTO(String ssn, ValidationStatus status) {
-
-  public static SsnValidationResultDTO okResultWith(String ssn) {
-    return new SsnValidationResultDTO(ssn, ValidationStatus.OK);
-  }
-
-  public static SsnValidationResultDTO invalidResultWith(String ssn) {
-    return new SsnValidationResultDTO(ssn, INVALID);
+    fun invalidResultWith(ssn: String): SsnValidationResultDTO {
+      return SsnValidationResultDTO(ssn, ValidationStatus.INVALID)
+    }
   }
 }

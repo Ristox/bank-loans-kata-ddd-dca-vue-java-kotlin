@@ -1,7 +1,5 @@
-package ee.rsx.kata.bank.loans.validation.ssn;
+package ee.rsx.kata.bank.loans.validation.ssn
 
-@FunctionalInterface
-public interface ValidateSocialSecurityNumber {
-
-  SsnValidationResultDTO on(String ssn);
+fun interface ValidateSocialSecurityNumber {
+  fun on(ssn: String): SsnValidationResultDTO
 }

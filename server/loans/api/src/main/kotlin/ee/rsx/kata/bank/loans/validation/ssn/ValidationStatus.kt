@@ -1,6 +1,6 @@
-package ee.rsx.kata.bank.loans.validation.ssn;
+package ee.rsx.kata.bank.loans.validation.ssn
 
-public enum ValidationStatus {
+enum class ValidationStatus {
   OK,
   INVALID
 }
