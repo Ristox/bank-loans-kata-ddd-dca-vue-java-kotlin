@@ -1,4 +1,4 @@
-import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
 
 plugins {
   id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}"
@@ -19,8 +19,7 @@ subprojects {
   apply plugin: 'jacoco'
   apply plugin: 'idea'
 
-  sourceCompatibility = '17'
-  targetCompatibility = '17'
+  targetCompatibility = '21'
 
   repositories {
     mavenCentral()
@@ -43,13 +42,13 @@ subprojects {
 
   compileKotlin {
     compilerOptions {
-      jvmTarget = JVM_17
+      jvmTarget = JVM_21
     }
   }
 
   compileTestKotlin {
     compilerOptions {
-      jvmTarget = JVM_17
+      jvmTarget = JVM_21
     }
   }
 
