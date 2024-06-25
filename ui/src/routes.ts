@@ -12,7 +12,7 @@ const routes: Array<RouteRecordRaw> = [
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.VITE_BASE_URL),
   routes
 });
 
