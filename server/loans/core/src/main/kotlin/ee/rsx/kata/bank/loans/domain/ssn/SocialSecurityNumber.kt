@@ -4,10 +4,7 @@ import java.lang.IllegalStateException
 import java.time.LocalDate
 import java.time.LocalDate.now
 import java.time.format.DateTimeFormatter.ofPattern
-import java.util.concurrent.atomic.AtomicInteger
-import java.util.function.Supplier
 import java.util.regex.Pattern.compile
-import java.util.stream.IntStream
 
 data class SocialSecurityNumber(val value: String) {
 
@@ -52,26 +49,21 @@ data class SocialSecurityNumber(val value: String) {
     return calculateChecksumUsing(DEFAULT_CHECKSUM_MULTIPLIERS, recalculation)
   }
 
-  private fun calculateChecksumUsing(multipliers: IntArray, recalculatedChecksum: Supplier<Int>): Int {
+  private fun calculateChecksumUsing(multipliers: IntArray, recalculatedChecksum: () -> Int): Int {
     val total = totalOfEachSsnNumberMultipliedWith(multipliers)
     var modulus = total % 11
     if (isDoubleDigit(modulus)) {
-      modulus = recalculatedChecksum.get()
+      modulus = recalculatedChecksum()
     }
     return modulus
   }
 
-  private fun totalOfEachSsnNumberMultipliedWith(multipliers: IntArray): Int {
-    val total = AtomicInteger()
-    IntStream
-      .range(0, value.length - 1)
-      .forEach { index: Int -> total.addAndGet(numberAt(index) * multipliers[index]) }
-    return total.get()
-  }
+  private fun totalOfEachSsnNumberMultipliedWith(multipliers: IntArray) =
+    (0 ..< value.length - 1).sumOf { numberAt(it) * multipliers[it] }
 
-  private fun numberAt(index: Int) = value.substring(index, index + 1).toInt()
+  private fun numberAt(index: Int) = value.elementAt(index).digitToInt()
 
   private fun isDoubleDigit(modulus: Int) = 10 == modulus
 
-  private fun parseChecksumAtTheEnd() = value.substring(value.length - 1).toInt()
+  private fun parseChecksumAtTheEnd() = value.last().digitToInt()
 }

@@ -9,13 +9,11 @@ import ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType.SEGMENT_3
 import ee.rsx.kata.bank.loans.domain.segment.gateway.FindCreditSegment
 import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber
 import jakarta.inject.Named
-import java.util.*
 
 @Named
 internal class InMemoryCreditSegmentStorageAdapter : FindCreditSegment {
 
-  override fun invoke(forPerson: SocialSecurityNumber) =
-    Optional.ofNullable(creditSegmentOfPerson[forPerson.value])
+  override fun invoke(forPerson: SocialSecurityNumber) = creditSegmentOfPerson[forPerson.value]
 
   companion object {
     private val creditSegmentOfPerson = mapOf(

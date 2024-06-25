@@ -33,11 +33,10 @@ import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import org.mockito.stubbing.Answer
-import java.util.*
 
 @DisplayName("Loan eligibility calculation")
 @ExtendWith(MockitoExtension::class)
-internal class LoanEligibilityCalculationTestKotlin {
+internal class LoanEligibilityCalculationTest {
 
   @Mock
   private lateinit var validateSocialSecurityNumber: ValidateSocialSecurityNumber
@@ -61,7 +60,7 @@ internal class LoanEligibilityCalculationTestKotlin {
     whenever(loadValidationLimits())
       .thenReturn(TEST_VALIDATION_LIMITS)
     whenever(findCreditSegment(any()))
-      .thenReturn(Optional.empty())
+      .thenReturn(null)
   }
 
   @Nested
@@ -162,7 +161,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       validRequest: LoanEligibilityRequestDTO, segment: CreditSegment, newEligiblePeriod: Int
     ): Int {
       `when`(determineEligiblePeriod(forAmount = validRequest.loanAmount, forSegment = segment))
-        .thenReturn(Optional.of(newEligiblePeriod))
+        .thenReturn(newEligiblePeriod)
       return newEligiblePeriod
     }
   }
@@ -343,14 +342,14 @@ internal class LoanEligibilityCalculationTestKotlin {
     val ssn = SocialSecurityNumber(withSsn)
     val foundSegment = CreditSegment(ssn, segmentType, creditModifier)
     `when`(findCreditSegment(ssn))
-      .thenReturn(Optional.of(foundSegment))
+      .thenReturn(foundSegment)
     return foundSegment
   }
 
   private fun whenCreditSegmentNotFoundForPerson(withSsn: String) {
     val ssn = SocialSecurityNumber(withSsn)
     `when`(findCreditSegment(ssn))
-      .thenReturn(Optional.empty())
+      .thenReturn(null)
   }
 
   internal class DefaultTestRequest {
@@ -391,7 +390,7 @@ internal class LoanEligibilityCalculationTestKotlin {
     }
 
     fun errors(vararg errors: String): DefaultTestResult {
-      this.errors = Arrays.stream(errors).toList()
+      this.errors = errors.toList()
       return this
     }
 

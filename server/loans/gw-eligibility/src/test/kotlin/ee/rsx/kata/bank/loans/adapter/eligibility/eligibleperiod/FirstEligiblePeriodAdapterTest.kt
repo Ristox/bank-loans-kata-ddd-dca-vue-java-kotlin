@@ -27,9 +27,7 @@ internal class FirstEligiblePeriodAdapterTest {
 
     val eligiblePeriod = determineEligiblePeriod(forAmount = requestedLoan, forSegment = segment)
 
-    assertThat(eligiblePeriod)
-      .isPresent()
-      .contains(51)
+    assertThat(eligiblePeriod).isEqualTo(51)
   }
 
   @Test
@@ -40,7 +38,6 @@ internal class FirstEligiblePeriodAdapterTest {
 
     val eligiblePeriod = determineEligiblePeriod(forAmount = requestedLoan, forSegment = debtSegment)
 
-    assertThat(eligiblePeriod)
-      .isNotPresent()
+    assertThat(eligiblePeriod).isNull()
   }
 }
