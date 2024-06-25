@@ -1,3 +1,3 @@
 package ee.rsx.kata.bank.loans.extensions
 
- fun <R> Boolean.ifTrue(block: () -> R) = if (this) block() else null
+ fun <R> Boolean.ifTrue(applyOperation: () -> R) = if (this) applyOperation() else null

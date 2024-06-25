@@ -119,7 +119,11 @@ internal class LoanEligibilityCalculation(
     request: LoanEligibilityRequestDTO, creditSegment: CreditSegment
   ): LoanEligibilityStatus {
     val creditScore = creditSegment.creditModifier.toDouble() / request.loanAmount * request.loanPeriodMonths
-    return if (!creditSegment.isDebt && creditScore > 1) APPROVED else DENIED
+
+    return if (!creditSegment.isDebt && creditScore > 1)
+      APPROVED
+    else
+      DENIED
   }
 
   private fun determineEligibleAmountFor(
