@@ -1,11 +1,13 @@
+import static org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+
 plugins {
-  id 'java'
-  id 'io.freefair.lombok' version "${lombokPluginVersion}"
+  id 'org.jetbrains.kotlin.jvm' version "${kotlinVersion}"
 }
 
-group = 'ee.rsx.kata.bank'
-version = '1.0.0-SNAPSHOT'
-sourceCompatibility = '17'
+allprojects {
+  group = 'ee.rsx.kata.bank'
+  version = '1.0.0-SNAPSHOT'
+}
 
 repositories {
   mavenCentral()
@@ -13,8 +15,7 @@ repositories {
 
 subprojects {
 
-  apply plugin: 'java'
-  apply plugin: 'io.freefair.lombok'
+  apply plugin: 'org.jetbrains.kotlin.jvm'
   apply plugin: 'jacoco'
   apply plugin: 'idea'
 
@@ -26,8 +27,6 @@ subprojects {
   }
 
   dependencies {
-    compileOnly "org.projectlombok:lombok:${lombokVersion}"
-
     implementation "jakarta.inject:jakarta.inject-api:${jakartaInjectVersion}"
     implementation "jakarta.annotation:jakarta.annotation-api:${jakartaAnnotationVersion}"
     implementation "org.apache.commons:commons-collections4:${apacheCommonsVersion}"
@@ -40,6 +39,18 @@ subprojects {
 
     testImplementation "org.hamcrest:hamcrest:${hamcrestVersion}"
     testImplementation "org.assertj:assertj-core:${assertjVersion}"
+  }
+
+  compileKotlin {
+    compilerOptions {
+      jvmTarget = JVM_17
+    }
+  }
+
+  compileTestKotlin {
+    compilerOptions {
+      jvmTarget = JVM_17
+    }
   }
 
   tasks.named('test') {
