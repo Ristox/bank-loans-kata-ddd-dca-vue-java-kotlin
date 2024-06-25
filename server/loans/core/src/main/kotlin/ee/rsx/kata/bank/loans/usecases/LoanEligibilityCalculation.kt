@@ -18,7 +18,6 @@ import ee.rsx.kata.bank.loans.validation.ssn.ValidateSocialSecurityNumber
 import ee.rsx.kata.bank.loans.validation.ssn.ValidationStatus.OK
 import jakarta.annotation.Nullable
 import jakarta.inject.Named
-import org.apache.commons.collections4.CollectionUtils
 import java.util.*
 import java.util.stream.Stream
 import kotlin.math.min
@@ -31,12 +30,12 @@ internal class LoanEligibilityCalculation(
   private val determineEligiblePeriod: DetermineEligiblePeriod
 ) : CalculateLoanEligibility {
 
-  override fun on(eligibilityRequest: LoanEligibilityRequestDTO): LoanEligibilityResultDTO {
-    val limits = loadValidationLimits.invoke()
+  override fun invoke(eligibilityRequest: LoanEligibilityRequestDTO): LoanEligibilityResultDTO {
+    val limits = loadValidationLimits()
     val validationErrors = validate(eligibilityRequest, limits)
 
     val (status, eligibleAmount, eligiblePeriod) =
-      if (CollectionUtils.isEmpty(validationErrors)) calculateEligibility(
+      if (validationErrors.isNullOrEmpty()) calculateEligibility(
         eligibilityRequest,
         limits
       ) else
@@ -70,7 +69,7 @@ internal class LoanEligibilityCalculation(
   }
 
   private fun checkForSsnErrorIn(request: LoanEligibilityRequestDTO): Optional<String> {
-    val ssnValidity = validateSocialSecurityNumber.on(request.ssn).status
+    val ssnValidity = validateSocialSecurityNumber(request.ssn).status
 
     return if (ssnValidity == OK)
       Optional.empty()
@@ -80,27 +79,27 @@ internal class LoanEligibilityCalculation(
 
   private fun checkForAmountErrorIn(request: LoanEligibilityRequestDTO, limits: ValidationLimitsDTO): Optional<String> {
     val amount = request.loanAmount
-    if (amount < limits.minimumLoanAmount) {
-      return Optional.of("Loan amount is less than minimum required")
-    }
-    return if (amount > limits.maximumLoanAmount) {
+
+    return if (amount < limits.minimumLoanAmount) {
+      Optional.of("Loan amount is less than minimum required")
+    } else if (amount > limits.maximumLoanAmount) {
       Optional.of("Loan amount is more than maximum allowed")
     } else Optional.empty()
   }
 
   private fun checkForPeriodErrorIn(request: LoanEligibilityRequestDTO, limits: ValidationLimitsDTO): Optional<String> {
     val period = request.loanPeriodMonths
-    if (period < limits.minimumLoanPeriodMonths) {
-      return Optional.of("Loan period is less than minimum required")
-    }
-    return if (period > limits.maximumLoanPeriodMonths) {
+
+    return if (period < limits.minimumLoanPeriodMonths) {
+      Optional.of("Loan period is less than minimum required")
+    } else if (period > limits.maximumLoanPeriodMonths) {
       Optional.of("Loan period is more than maximum allowed")
     } else Optional.empty()
   }
 
   private fun calculateEligibility(request: LoanEligibilityRequestDTO, limits: ValidationLimitsDTO): LoanEligibility {
     val ssn = SocialSecurityNumber(request.ssn)
-    val creditSegment = findCreditSegment.forPerson(ssn)
+    val creditSegment = findCreditSegment(forPerson = ssn)
 
     return creditSegment
       .map {
@@ -123,7 +122,7 @@ internal class LoanEligibilityCalculation(
       return LoanEligibility(status)
     }
 
-    val newPeriod = determineEligiblePeriod.forLoan(request.loanAmount, segment)
+    val newPeriod = determineEligiblePeriod(forAmount = request.loanAmount, forSegment = segment)
       .filter { limits.minimumLoanPeriodMonths <= it && it <= limits.maximumLoanPeriodMonths }
 
     val newAmount = newPeriod.flatMap { determineEligibleAmountFor(limits, segment, it) }

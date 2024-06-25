@@ -1,13 +1,13 @@
 package ee.rsx.kata.bank.loans.adapter.validation
 
 import ee.rsx.kata.bank.loans.domain.limits.LoanLimitsConfig
-import ee.rsx.kata.bank.loans.domain.limits.gateway.LoanConfigGateway
+import ee.rsx.kata.bank.loans.domain.limits.gateway.GetLoanConfig
 import jakarta.inject.Named
 
 @Named
-internal class LoanConfigurationAdapter : LoanConfigGateway {
+internal class LoanConfigurationAdapter : GetLoanConfig {
 
-  override fun loadLimits() = LoanLimitsConfig(
+  override fun invoke() = LoanLimitsConfig(
     MINIMUM_LOAN_AMOUNT,
     MAXIMUM_LOAN_AMOUNT,
     MINIMUM_LOAN_PERIOD_MONTHS,

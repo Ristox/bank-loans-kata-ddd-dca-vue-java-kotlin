@@ -4,5 +4,5 @@ import ee.rsx.kata.bank.loans.domain.segment.CreditSegment
 import java.util.*
 
 fun interface DetermineEligiblePeriod {
-  fun forLoan(amount: Int, creditSegment: CreditSegment): Optional<Int>
+  operator fun invoke(forAmount: Int, forSegment: CreditSegment): Optional<Int>
 }

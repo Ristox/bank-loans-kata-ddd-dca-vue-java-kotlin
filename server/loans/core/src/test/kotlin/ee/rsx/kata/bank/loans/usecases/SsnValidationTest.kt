@@ -12,18 +12,18 @@ import org.junit.jupiter.api.Test
 @DisplayName("SSN Validation")
 internal class SsnValidationTest {
 
-  private lateinit var ssnValidation: SsnValidation
+  private lateinit var validateSsn: SsnValidation
 
   @BeforeEach
   fun setup() {
-    ssnValidation = SsnValidation()
+    validateSsn = SsnValidation()
   }
 
   @Test
   fun `result is OK, for a given valid SSN value`() {
     val validSsnValue = "50212104262"
 
-    val result = ssnValidation.on(validSsnValue)
+    val result = validateSsn(validSsnValue)
 
     assertThat(result).isEqualTo(
       SsnValidationResultDTO(validSsnValue, OK)
@@ -39,7 +39,7 @@ internal class SsnValidationTest {
       val invalidDate = "021310"
       val invalidSsnValue = "5${invalidDate}4262"
 
-      val result = ssnValidation.on(invalidSsnValue)
+      val result = validateSsn(invalidSsnValue)
 
       assertThat(result).isEqualTo(
         expectedInvalidResultFor(invalidSsnValue)
@@ -51,7 +51,7 @@ internal class SsnValidationTest {
       val invalidChecksum = "3"
       val invalidSsnValue = "5021210426${invalidChecksum}"
 
-      val result = ssnValidation.on(invalidSsnValue)
+      val result = validateSsn(invalidSsnValue)
 
       assertThat(result).isEqualTo(
         expectedInvalidResultFor(invalidSsnValue)
@@ -63,7 +63,7 @@ internal class SsnValidationTest {
       val invalidCenturyPrefix = "7"
       val invalidSsnValue = "${invalidCenturyPrefix}0212104262"
 
-      val result = ssnValidation.on(invalidSsnValue)
+      val result = validateSsn(invalidSsnValue)
 
       assertThat(result).isEqualTo(
         expectedInvalidResultFor(invalidSsnValue)

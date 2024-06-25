@@ -25,7 +25,7 @@ internal class FirstEligiblePeriodAdapterTest {
     val creditModifier = 100
     val segment = CreditSegment(SocialSecurityNumber("49002010976"), SEGMENT_1, creditModifier)
 
-    val eligiblePeriod = determineEligiblePeriod.forLoan(requestedLoan, segment)
+    val eligiblePeriod = determineEligiblePeriod(forAmount = requestedLoan, forSegment = segment)
 
     assertThat(eligiblePeriod)
       .isPresent()
@@ -38,7 +38,7 @@ internal class FirstEligiblePeriodAdapterTest {
     val creditModifier = 100
     val debtSegment = CreditSegment(SocialSecurityNumber("49002010976"), DEBT, creditModifier)
 
-    val eligiblePeriod = determineEligiblePeriod.forLoan(requestedLoan, debtSegment)
+    val eligiblePeriod = determineEligiblePeriod(forAmount = requestedLoan, forSegment = debtSegment)
 
     assertThat(eligiblePeriod)
       .isNotPresent()

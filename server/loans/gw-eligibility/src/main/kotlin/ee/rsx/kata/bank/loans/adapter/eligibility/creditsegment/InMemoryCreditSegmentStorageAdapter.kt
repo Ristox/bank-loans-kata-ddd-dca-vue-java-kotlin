@@ -14,8 +14,8 @@ import java.util.*
 @Named
 internal class InMemoryCreditSegmentStorageAdapter : FindCreditSegment {
 
-  override fun forPerson(ssn: SocialSecurityNumber) =
-    Optional.ofNullable(creditSegmentOfPerson[ssn.value])
+  override fun invoke(forPerson: SocialSecurityNumber) =
+    Optional.ofNullable(creditSegmentOfPerson[forPerson.value])
 
   companion object {
     private val creditSegmentOfPerson = mapOf(

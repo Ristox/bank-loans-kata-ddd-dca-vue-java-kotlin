@@ -56,11 +56,11 @@ internal class LoanEligibilityCalculationTestKotlin {
 
   @BeforeEach
   fun setup() {
-    whenever(validateSocialSecurityNumber.on(any()))
+    whenever(validateSocialSecurityNumber(any()))
       .thenAnswer(okResultWithProvidedSsn())
-    whenever(loadValidationLimits.invoke())
+    whenever(loadValidationLimits())
       .thenReturn(TEST_VALIDATION_LIMITS)
-    whenever(findCreditSegment.forPerson(any()))
+    whenever(findCreditSegment(any()))
       .thenReturn(Optional.empty())
   }
 
@@ -73,7 +73,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val validRequest = testRequest().create()
       whenCreditSegmentNotFoundForPerson(DEFAULT_SSN)
 
-      val result = calculateLoanEligibility.on(validRequest)
+      val result = calculateLoanEligibility.invoke(validRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -87,7 +87,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val tooLowCreditModifier = 100
       whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, tooLowCreditModifier)
 
-      val result = calculateLoanEligibility.on(validRequest)
+      val result = calculateLoanEligibility.invoke(validRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -102,7 +102,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val validRequest = testRequest().amount(2000).period(20).create()
       whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 100)
 
-      val result = calculateLoanEligibility.on(validRequest)
+      val result = calculateLoanEligibility.invoke(validRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -122,7 +122,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val segment = whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, creditModifier)
       val newEligiblePeriod = whenNewEligiblePeriodDeterminedFor(validRequest, segment, 51)
 
-      val result = calculateLoanEligibility.on(validRequest)
+      val result = calculateLoanEligibility.invoke(validRequest)
 
       val expectedNewEligibleLoanAmount = newEligiblePeriod * creditModifier - 1
       assertThat(result)
@@ -145,7 +145,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val segment = whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, creditModifier)
       whenNewEligiblePeriodDeterminedFor(validRequest, segment, 91)
 
-      val result = calculateLoanEligibility.on(validRequest)
+      val result = calculateLoanEligibility.invoke(validRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -161,7 +161,7 @@ internal class LoanEligibilityCalculationTestKotlin {
     private fun whenNewEligiblePeriodDeterminedFor(
       validRequest: LoanEligibilityRequestDTO, segment: CreditSegment, newEligiblePeriod: Int
     ): Int {
-      `when`(determineEligiblePeriod.forLoan(validRequest.loanAmount, segment))
+      `when`(determineEligiblePeriod(forAmount = validRequest.loanAmount, forSegment = segment))
         .thenReturn(Optional.of(newEligiblePeriod))
       return newEligiblePeriod
     }
@@ -176,7 +176,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val validRequest = testRequest().create()
       whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_3, 1000)
 
-      val result = calculateLoanEligibility.on(validRequest)
+      val result = calculateLoanEligibility.invoke(validRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -193,7 +193,7 @@ internal class LoanEligibilityCalculationTestKotlin {
 
       whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 100)
 
-      val result = calculateLoanEligibility.on(validRequest)
+      val result = calculateLoanEligibility.invoke(validRequest)
       assertThat(result)
         .isEqualTo(
           expectedResult(APPROVED)
@@ -209,7 +209,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val validRequest = testRequest().amount(smallAmount).create()
       whenCreditSegmentFoundForPerson(DEFAULT_SSN, SEGMENT_1, 60)
 
-      val result = calculateLoanEligibility.on(validRequest)
+      val result = calculateLoanEligibility.invoke(validRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -235,7 +235,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       whenSsnValidationFailsFor(invalidSsn)
       val invalidRequest = testRequest().ssn(invalidSsn).create()
 
-      val result = calculateLoanEligibility.on(invalidRequest)
+      val result = calculateLoanEligibility.invoke(invalidRequest)
 
       assertThat(result).isEqualTo(
         expectedResult(withStatus = INVALID)
@@ -246,7 +246,7 @@ internal class LoanEligibilityCalculationTestKotlin {
     }
 
     private fun whenSsnValidationFailsFor(invalidSsn: String) {
-      `when`(validateSocialSecurityNumber.on(invalidSsn))
+      `when`(validateSocialSecurityNumber(invalidSsn))
         .thenReturn(invalidResultWith(invalidSsn))
     }
 
@@ -255,7 +255,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val tooSmallLoanAmount = MINIMUM_REQUIRED_LOAN_AMOUNT - 1
       val invalidRequest = testRequest().amount(tooSmallLoanAmount).create()
 
-      val result = calculateLoanEligibility.on(invalidRequest)
+      val result = calculateLoanEligibility.invoke(invalidRequest)
 
       assertThat(result).isEqualTo(
         expectedResult(withStatus = INVALID).amount(tooSmallLoanAmount)
@@ -269,7 +269,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val tooLargeLoanAmount = MAXIMUM_ALLOWED_LOAN_AMOUNT + 1
       val invalidRequest = testRequest().amount(tooLargeLoanAmount).create()
 
-      val result = calculateLoanEligibility.on(invalidRequest)
+      val result = calculateLoanEligibility.invoke(invalidRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -286,7 +286,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val tooSmallLoanPeriod = MINIMUM_REQUIRED_LOAN_PERIOD - 1
       val invalidRequest = testRequest().period(tooSmallLoanPeriod).create()
 
-      val result = calculateLoanEligibility.on(invalidRequest)
+      val result = calculateLoanEligibility.invoke(invalidRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -302,7 +302,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val tooLargeLoanPeriod = MAXIMUM_ALLOWED_LOAN_PERIOD + 1
       val invalidRequest = testRequest().period(tooLargeLoanPeriod).create()
 
-      val result = calculateLoanEligibility.on(invalidRequest)
+      val result = calculateLoanEligibility.invoke(invalidRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -321,7 +321,7 @@ internal class LoanEligibilityCalculationTestKotlin {
       val tooLargeLoanPeriod = MAXIMUM_ALLOWED_LOAN_PERIOD + 1
       val invalidRequest = testRequest().ssn(invalidSsn).amount(tooSmallLoanAmount).period(tooLargeLoanPeriod).create()
 
-      val result = calculateLoanEligibility.on(invalidRequest)
+      val result = calculateLoanEligibility.invoke(invalidRequest)
 
       assertThat(result)
         .isEqualTo(
@@ -342,14 +342,14 @@ internal class LoanEligibilityCalculationTestKotlin {
   private fun whenCreditSegmentFoundForPerson(withSsn: String, segmentType: CreditSegmentType, creditModifier: Int): CreditSegment {
     val ssn = SocialSecurityNumber(withSsn)
     val foundSegment = CreditSegment(ssn, segmentType, creditModifier)
-    `when`(findCreditSegment.forPerson(ssn))
+    `when`(findCreditSegment(ssn))
       .thenReturn(Optional.of(foundSegment))
     return foundSegment
   }
 
   private fun whenCreditSegmentNotFoundForPerson(withSsn: String) {
     val ssn = SocialSecurityNumber(withSsn)
-    `when`(findCreditSegment.forPerson(ssn))
+    `when`(findCreditSegment(ssn))
       .thenReturn(Optional.empty())
   }
 

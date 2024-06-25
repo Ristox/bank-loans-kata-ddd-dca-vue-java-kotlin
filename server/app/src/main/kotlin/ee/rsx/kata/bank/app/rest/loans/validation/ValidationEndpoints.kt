@@ -10,13 +10,13 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/loans/validation")
 class ValidationEndpoints(
-  private val loadValidationLimits: LoadValidationLimits,
+  private val loadLimits: LoadValidationLimits,
   private val validateSocialSecurityNumber: ValidateSocialSecurityNumber
 ) {
 
   @GetMapping(value = ["/limits"])
-  fun loadValidationLimits() = loadValidationLimits.invoke()
+  fun loadValidationLimits() = loadLimits()
 
   @GetMapping(value = ["/ssn"])
-  fun validateSsn(@RequestParam("value") value: String) = validateSocialSecurityNumber.on(value)
+  fun validateSsn(@RequestParam("value") value: String) = validateSocialSecurityNumber(value)
 }

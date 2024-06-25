@@ -11,11 +11,11 @@ import kotlin.math.floor
 @Named
 internal class FirstEligiblePeriodAdapter : DetermineEligiblePeriod {
 
-  override fun forLoan(amount: Int, creditSegment: CreditSegment): Optional<Int> =
-    if (creditSegment.isDebt)
+  override fun invoke(forAmount: Int, forSegment: CreditSegment): Optional<Int> =
+    if (forSegment.isDebt)
       empty()
     else
-      of(calculateFirstMinimumPeriodEligibleFor(amount, creditSegment))
+      of(calculateFirstMinimumPeriodEligibleFor(forAmount, forSegment))
 
   private fun calculateFirstMinimumPeriodEligibleFor(amount: Int, creditSegment: CreditSegment): Int {
     val firstPeriod = floor(amount.toDouble() / creditSegment.creditModifier)

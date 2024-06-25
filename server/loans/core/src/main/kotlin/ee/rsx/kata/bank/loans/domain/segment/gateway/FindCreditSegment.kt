@@ -5,5 +5,5 @@ import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber
 import java.util.*
 
 fun interface FindCreditSegment {
-  fun forPerson(ssn: SocialSecurityNumber): Optional<CreditSegment>
+  operator fun invoke(forPerson: SocialSecurityNumber): Optional<CreditSegment>
 }

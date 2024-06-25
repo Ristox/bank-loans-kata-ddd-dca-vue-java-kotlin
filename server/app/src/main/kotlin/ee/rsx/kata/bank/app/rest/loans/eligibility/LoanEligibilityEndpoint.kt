@@ -19,12 +19,14 @@ import org.springframework.web.bind.annotation.RestController
 @RestController
 @RequestMapping("/loans/eligibility")
 class LoanEligibilityEndpoint(
-  private val calculateLoanEligibility: CalculateLoanEligibility
+  private val calculateEligibility: CalculateLoanEligibility
 ) {
 
   @PostMapping
-  fun calculateLoanEligibility(@RequestBody request: LoanEligibilityRequestDTO): ResponseEntity<LoanEligibilityResultDTO> =
-    with(calculateLoanEligibility.on(request)) {
+  fun calculateLoanEligibility(
+    @RequestBody request: LoanEligibilityRequestDTO
+  ): ResponseEntity<LoanEligibilityResultDTO> =
+    with(calculateEligibility(request)) {
       val httpStatus = when (result) {
         APPROVED -> OK
         INVALID -> BAD_REQUEST

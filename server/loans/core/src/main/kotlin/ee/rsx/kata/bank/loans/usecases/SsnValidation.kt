@@ -11,7 +11,7 @@ import java.time.format.DateTimeParseException
 @Named
 internal class SsnValidation : ValidateSocialSecurityNumber {
 
-  override fun on(ssn: String): SsnValidationResultDTO =
+  override fun invoke(ssn: String): SsnValidationResultDTO =
     try {
       val validSsn = SocialSecurityNumber(ssn)
       okResultWith(validSsn.value)
