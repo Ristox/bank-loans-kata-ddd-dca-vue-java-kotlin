@@ -17,9 +17,13 @@
 
 ***Using Docker Compose (local java and node installations not required)***
 
+0. Optionally - to change webserver port or base path of the app (default port 80 and root path /),
+   copy `sample.env` to `.env` and change the environment variable values accordingly, before running
+
 1. Execute `docker-compose up`
-2. Application UI is available at http://localhost
-3. Server API is available at http://localhost/api or http://localhost:8080/api
+2. Application UI is available at http://localhost (when using default base path and port)
+3. Server API is available at http://localhost/api (when using default base path and port)  
+   or http://localhost:8080/api
    (root API URL does not have a service mapping)
 
 ***Without  Docker(local java and node installations are required)***
