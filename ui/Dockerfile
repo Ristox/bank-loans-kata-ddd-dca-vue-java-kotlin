@@ -17,7 +17,7 @@ ENV VITE_BASE_URL=$VITE_BASE_URL
 
 COPY --from=build /opt/rsx/bank-loans-ui/dist  /var/www/rsx-bank-loans-ui
 
-RUN rm /etc/nginx/conf.d/default.conf
+RUN chown nginx:nginx /var/www && rm /etc/nginx/conf.d/default.conf
 COPY .nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.template
 
-CMD ["/bin/sh" , "-c" , "envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
+CMD ["/bin/sh" , "-c" , "envsubst '$$VITE_BASE_URL $$WEB_PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && exec nginx -g 'daemon off;'"]
