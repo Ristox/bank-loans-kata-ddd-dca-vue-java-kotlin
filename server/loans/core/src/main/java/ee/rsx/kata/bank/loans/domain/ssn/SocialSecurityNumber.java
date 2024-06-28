@@ -3,8 +3,7 @@ package ee.rsx.kata.bank.loans.domain.ssn;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Supplier;
+import java.util.function.IntSupplier;
 import java.util.regex.Pattern;
 import java.util.stream.IntStream;
 
@@ -16,7 +15,7 @@ import static java.util.regex.Pattern.compile;
 
 public record SocialSecurityNumber(String value) {
 
-  private static final Pattern SSN_PATTERN = compile("^[0-9]\\d{2}[0-1]\\d{7}$");
+  private static final Pattern SSN_PATTERN = compile("^\\d{3}[0-1]\\d{7}$");
   private static final DateTimeFormatter SSN_DATE_FORMAT = ofPattern("yyyyMMdd");
 
   private static final int[] DEFAULT_CHECKSUM_MULTIPLIERS = new int[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 1};
@@ -49,45 +48,42 @@ public record SocialSecurityNumber(String value) {
   }
 
   private LocalDate parseBirthDate() {
-    var date = value.substring(1, 7);
+    var shortBirthDate = value.substring(1, 7);
     var century = value.substring(0, 1);
-    date = switch (century) {
-      case "1", "2" -> "18" + date;
-      case "3", "4" -> "19" + date;
-      case "5", "6" -> "20" + date;
+    var fullBirthDate = switch (century) {
+      case "1", "2" -> "18" + shortBirthDate;
+      case "3", "4" -> "19" + shortBirthDate;
+      case "5", "6" -> "20" + shortBirthDate;
       default -> throw new IllegalStateException(
         format("Illegal century value (%s) in social security number (%s)", century, value)
       );
     };
-    return LocalDate.parse(date, SSN_DATE_FORMAT);
+    return LocalDate.parse(fullBirthDate, SSN_DATE_FORMAT);
   }
 
   private int calculateChecksum() {
-    Supplier<Integer> recalculation =
+    IntSupplier recalculation =
       () -> calculateChecksumUsing(RECALCULATED_CHECKSUM_MULTIPLIERS, () -> 0);
 
     return calculateChecksumUsing(DEFAULT_CHECKSUM_MULTIPLIERS, recalculation);
   }
 
-  private int calculateChecksumUsing(int[] multipliers, Supplier<Integer> recalculatedChecksum) {
-    var total = totalOfEachSsnNumberMultipliedWith(multipliers);
+  private int calculateChecksumUsing(int[] multipliers, IntSupplier recalculatedChecksum) {
+    var total = sumOfEachSsnNumberMultipliedWith(multipliers);
 
     var modulus = total % 11;
     if (isDoubleDigit(modulus)) {
-      modulus = recalculatedChecksum.get();
+      modulus = recalculatedChecksum.getAsInt();
     }
 
     return modulus;
   }
 
-  private int totalOfEachSsnNumberMultipliedWith(int[] multipliers) {
-    var total = new AtomicInteger();
-
-    IntStream
+  private int sumOfEachSsnNumberMultipliedWith(int[] multipliers) {
+    return IntStream
       .range(0, value.length() - 1)
-      .forEach((index) -> total.addAndGet(numberAt(index) * multipliers[index]));
-
-    return total.get();
+      .map(index -> numberAt(index) * multipliers[index])
+      .sum();
   }
 
   private int numberAt(int index) {
