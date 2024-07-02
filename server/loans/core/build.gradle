@@ -2,5 +2,5 @@ group = 'ee.rsx.kata.bank'
 version = '1.0.0-SNAPSHOT'
 
 dependencies {
-  implementation project(":loans-api")
+  implementation project(':loans:loans-api')
 }

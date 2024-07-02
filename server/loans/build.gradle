@@ -2,8 +2,8 @@ group = 'ee.rsx.kata.bank'
 version = '1.0.0-SNAPSHOT'
 
 dependencies {
-  runtimeOnly project(':loans-api')
-  runtimeOnly project(':loans-core')
-  runtimeOnly project(':loans-gw-eligibility')
-  runtimeOnly project(':loans-gw-validation')
+  runtimeOnly project('loans-api')
+  runtimeOnly project('loans-core')
+  runtimeOnly project('loans-gw-eligibility')
+  runtimeOnly project('loans-gw-validation')
 }

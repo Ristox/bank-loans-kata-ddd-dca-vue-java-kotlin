@@ -2,16 +2,17 @@ rootProject.name = 'bank-loans-server'
 
 include 'app'
 
+
 include 'loans'
 
-include 'loans/api'
-project(':loans/api').name = 'loans-api'
+include 'loans:api'
+project(':loans:api').name = 'loans-api'
 
-include 'loans/core'
-project(':loans/core').name = 'loans-core'
+include 'loans:core'
+project(':loans:core').name = 'loans-core'
 
-include 'loans/gw-eligibility'
-project(':loans/gw-eligibility').name = 'loans-gw-eligibility'
+include 'loans:gw-eligibility'
+project(':loans:gw-eligibility').name = 'loans-gw-eligibility'
 
-include 'loans/gw-validation'
-project(':loans/gw-validation').name = 'loans-gw-validation'
+include 'loans:gw-validation'
+project(':loans:gw-validation').name = 'loans-gw-validation'
