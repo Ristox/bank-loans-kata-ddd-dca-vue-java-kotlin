@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.adapter.eligibility.creditsegment;
+package ee.rsx.kata.bank.loans.adapter.eligibility.db;
 
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 import ee.rsx.kata.bank.loans.domain.segment.CreditSegmentType;
@@ -16,15 +16,13 @@ import static java.util.Optional.ofNullable;
 @Named
 @ConditionalOnProperty(
   value = "bank.loans.eligibility.credit-segment-adapter",
-  havingValue = "in-memory"
+  havingValue = "sqlite"
 )
-class InMemoryCreditSegmentStorageAdapter implements FindCreditSegment {
+class SQLiteCreditSegmentAdapter implements FindCreditSegment {
 
   private static final Map<String, CreditSegment> creditSegmentOfPerson = Map.ofEntries(
     segmentFor("49002010965", DEBT, 666),
-    segmentFor("49002010976", SEGMENT_1, 100),
-    segmentFor("49002010987", SEGMENT_2, 300),
-    segmentFor("49002010998", SEGMENT_3, 1000)
+    segmentFor("49002010976", SEGMENT_1, 100)
   );
 
   private static Map.Entry<String, CreditSegment> segmentFor(String ssn, CreditSegmentType withType, int withCreditModifier) {

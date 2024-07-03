@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
 
@@ -15,9 +16,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = {Server.class})
+@ActiveProfiles("integration-test")
 @AutoConfigureMockMvc
 @DisplayName("Loan eligibility calculation")
-public class LoanEligibilityIntegrationTest {
+class LoanEligibilityIntegrationTest {
 
   private static final String LOAN_ELIGIBILITY_URL = "/loans/eligibility";
 

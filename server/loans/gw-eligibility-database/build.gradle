@@ -9,7 +9,10 @@ version = '1.0.0-SNAPSHOT'
 dependencies {
   implementation project(':loans:loans-core')
 
-  implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation "org.springframework.boot:spring-boot-starter-data-jpa"
+  implementation "com.h2database:h2:2.2.224"
+  implementation("org.xerial:sqlite-jdbc:3.46.0.0")
+  implementation("org.hibernate.orm:hibernate-community-dialects:6.5.2.Final")
 }
 
 bootJar {

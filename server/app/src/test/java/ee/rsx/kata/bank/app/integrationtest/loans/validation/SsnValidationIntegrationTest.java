@@ -6,6 +6,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static java.lang.String.format;
@@ -14,9 +15,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT, classes = {Server.class})
+@ActiveProfiles("integration-test")
 @AutoConfigureMockMvc
 @DisplayName("SSN Validation for loans eligibility request")
-public class SsnValidationIntegrationTest {
+class SsnValidationIntegrationTest {
 
   private static final String SSN_VALIDATION_URL = "/loans/validation/ssn?value=%s";
 

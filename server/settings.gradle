@@ -16,3 +16,6 @@ project(':loans:gw-eligibility').name = 'loans-gw-eligibility'
 
 include 'loans:gw-validation'
 project(':loans:gw-validation').name = 'loans-gw-validation'
+
+include 'loans:gw-eligibility-database'
+project(':loans:gw-eligibility-database').name = 'loans-gw-eligibility-database'

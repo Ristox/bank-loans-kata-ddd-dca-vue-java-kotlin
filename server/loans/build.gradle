@@ -5,5 +5,6 @@ dependencies {
   runtimeOnly project('loans-api')
   runtimeOnly project('loans-core')
   runtimeOnly project('loans-gw-eligibility')
+  runtimeOnly project('loans-gw-eligibility-database')
   runtimeOnly project('loans-gw-validation')
 }

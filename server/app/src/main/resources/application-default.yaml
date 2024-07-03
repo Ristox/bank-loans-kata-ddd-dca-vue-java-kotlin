@@ -1,0 +1,17 @@
+spring:
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:sqlite:database.db
+    driver-class-name: org.sqlite.JDBC
+    username: admin
+    password: admin
+
+# .credit-segment-adapter = 'in-memory' | 'sqlite' will use respective storage
+bank:
+  loans:
+    eligibility:
+      credit-segment-adapter: sqlite
