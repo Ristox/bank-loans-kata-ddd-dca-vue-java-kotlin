@@ -1,4 +1,4 @@
-package ee.rsx.kata.bank.loans.domain;
+package ee.rsx.kata.bank.loans.domain.loan;
 
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
 import jakarta.annotation.Nullable;

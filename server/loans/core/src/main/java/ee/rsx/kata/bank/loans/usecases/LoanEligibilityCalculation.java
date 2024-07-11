@@ -1,14 +1,14 @@
 package ee.rsx.kata.bank.loans.usecases;
 
-import ee.rsx.kata.bank.loans.domain.LoanEligibility;
+import ee.rsx.kata.bank.loans.domain.loan.LoanEligibility;
 import ee.rsx.kata.bank.loans.domain.limits.gateway.DetermineEligiblePeriod;
-import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
+import ee.rsx.kata.bank.loans.domain.loan.Applicant;
+import ee.rsx.kata.bank.loans.domain.loan.Loan;
 import ee.rsx.kata.bank.loans.domain.segment.gateway.FindCreditSegment;
 import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import ee.rsx.kata.bank.loans.eligibility.CalculateLoanEligibility;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityRequestDTO;
 import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityResultDTO;
-import ee.rsx.kata.bank.loans.eligibility.LoanEligibilityStatus;
 import ee.rsx.kata.bank.loans.validation.limits.LoadValidationLimits;
 import ee.rsx.kata.bank.loans.validation.limits.ValidationLimitsDTO;
 import ee.rsx.kata.bank.loans.validation.ssn.ValidateSocialSecurityNumber;
@@ -77,84 +77,45 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
   }
 
   private Optional<String> checkForAmountErrorIn(LoanEligibilityRequestDTO request, ValidationLimitsDTO limits) {
-    var amount = request.loanAmount();
-    if (amount < limits.minimumLoanAmount()) {
-      return of("Loan amount is less than minimum required");
-    }
-    if (amount > limits.maximumLoanAmount()) {
-      return of("Loan amount is more than maximum allowed");
-    }
-    return empty();
+    return switch (request.loanAmount()) {
+      case Integer amount when amount < limits.minimumLoanAmount() -> of("Loan amount is less than minimum required");
+      case Integer amount when amount > limits.maximumLoanAmount() -> of("Loan amount is more than maximum allowed");
+      default -> empty();
+    };
   }
 
   private Optional<String> checkForPeriodErrorIn(LoanEligibilityRequestDTO request, ValidationLimitsDTO limits) {
-    var period = request.loanPeriodMonths();
-    if (period < limits.minimumLoanPeriodMonths()) {
-      return of("Loan period is less than minimum required");
-    }
-    if (period > limits.maximumLoanPeriodMonths()) {
-      return of("Loan period is more than maximum allowed");
-    }
-    return empty();
+    return switch (request.loanPeriodMonths()) {
+      case Integer period when period < limits.minimumLoanPeriodMonths() -> of("Loan period is less than minimum required");
+      case Integer period when period > limits.maximumLoanPeriodMonths() -> of("Loan period is more than maximum allowed");
+      default -> empty();
+    };
   }
 
   private LoanEligibility calculateEligibility(LoanEligibilityRequestDTO request, ValidationLimitsDTO limits) {
     var ssn = new SocialSecurityNumber(request.ssn());
-    Optional<CreditSegment> creditSegment = findCreditSegment.forPerson(ssn);
+    var amount = request.loanAmount();
+    var period = request.loanPeriodMonths();
 
-    return creditSegment
-      .map(segment -> {
-        var status = determineEligibilityStatusFor(request, segment);
-
-        return determineEligibleAmountFor(limits, segment, request.loanPeriodMonths())
-          .map(eligibleAmount -> new LoanEligibility(status, eligibleAmount, null))
-          .orElseGet(
-            () -> recalculateEligibilityFor(request, limits, segment, status)
-          );
-      })
+    return findCreditSegment.forPerson(ssn)
+      .map(segment -> Applicant.with(ssn, segment, Loan.with(amount, period, limits.minimumLoanAmount(), limits.maximumLoanAmount())))
+      .filter(Applicant::isNotInDebt)
+      .map(applicant ->
+          applicant.attemptFindingEligibilityWithAmount().orElseGet(() -> recalculateEligibilityFor(applicant, limits)
+        ))
       .orElseGet(
         () -> new LoanEligibility(DENIED, null, null)
       );
   }
 
-  private LoanEligibility recalculateEligibilityFor(
-    LoanEligibilityRequestDTO request,
-    ValidationLimitsDTO limits,
-    CreditSegment segment,
-    LoanEligibilityStatus status
-  ) {
-    if (segment.isDebt()) {
-      return new LoanEligibility(status, null, null);
-    }
+  private LoanEligibility recalculateEligibilityFor(Applicant applicant, ValidationLimitsDTO limits) {
     Optional<Integer> newPeriod =
-      determineEligiblePeriod.forLoan(request.loanAmount(), segment)
+      determineEligiblePeriod.forLoan(applicant.loan().amount(), applicant.segment())
         .filter(period ->
           limits.minimumLoanPeriodMonths() <= period && period <= limits.maximumLoanPeriodMonths()
         );
 
-    Optional<Integer> newAmount =
-      newPeriod.flatMap(period -> determineEligibleAmountFor(limits, segment, period));
-
-    return new LoanEligibility(status, newAmount.orElse(null), newPeriod.orElse(null));
-  }
-
-  private LoanEligibilityStatus determineEligibilityStatusFor(
-    LoanEligibilityRequestDTO request, CreditSegment creditSegment
-  ) {
-    double creditScore =
-      (double) creditSegment.creditModifier() / request.loanAmount() * request.loanPeriodMonths();
-
-    return (!creditSegment.isDebt() && creditScore > 1) ? APPROVED : DENIED;
-  }
-
-  private Optional<Integer> determineEligibleAmountFor(
-    ValidationLimitsDTO limits, CreditSegment creditSegment, Integer loanPeriodMonths
-  ) {
-    int eligibleAmount = Math.min(
-      limits.maximumLoanAmount(),
-      creditSegment.creditModifier() * loanPeriodMonths - 1
-    );
-
-    return eligibleAmount >= limits.minimumLoanAmount() ? of(eligibleAmount) : empty();
+    return newPeriod.map(applicant::eligibilityForNewPeriod)
+      .orElseGet(applicant::eligibility);
   }
 }
