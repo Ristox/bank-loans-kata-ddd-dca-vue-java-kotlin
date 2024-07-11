@@ -36,10 +36,10 @@ public record Applicant(
     return !segment.isDebt();
   }
 
-  public LoanEligibility eligibilityForNewPeriod(Integer newPeriod) {
-    return eligibleAmountWithin(newPeriod)
-      .map(amount -> new LoanEligibility(eligibilityStatus(), amount, newPeriod))
-      .orElseGet(() -> new LoanEligibility(eligibilityStatus(), null, newPeriod));
+  public LoanEligibility eligibilityForPeriod(Integer period) {
+    return eligibleAmountWithin(period)
+      .map(amount -> new LoanEligibility(eligibilityStatus(), amount, period))
+      .orElseGet(() -> new LoanEligibility(eligibilityStatus(), null, period));
   }
 
   public LoanEligibility eligibility() {
