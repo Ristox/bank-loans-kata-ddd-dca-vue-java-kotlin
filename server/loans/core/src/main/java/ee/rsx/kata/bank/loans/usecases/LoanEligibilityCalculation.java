@@ -4,6 +4,7 @@ import ee.rsx.kata.bank.loans.domain.loan.LoanEligibility;
 import ee.rsx.kata.bank.loans.domain.limits.gateway.DetermineEligiblePeriod;
 import ee.rsx.kata.bank.loans.domain.loan.Applicant;
 import ee.rsx.kata.bank.loans.domain.loan.Loan;
+import ee.rsx.kata.bank.loans.domain.segment.CreditSegment;
 import ee.rsx.kata.bank.loans.domain.segment.gateway.FindCreditSegment;
 import ee.rsx.kata.bank.loans.domain.ssn.SocialSecurityNumber;
 import ee.rsx.kata.bank.loans.eligibility.CalculateLoanEligibility;
@@ -98,7 +99,7 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
     var period = request.loanPeriodMonths();
 
     return findCreditSegment.forPerson(ssn)
-      .map(segment -> Applicant.with(ssn, segment, Loan.with(amount, period, limits.minimumLoanAmount(), limits.maximumLoanAmount())))
+      .map(segment -> applicantWith(ssn, segment, amount, limits, period))
       .filter(Applicant::isNotInDebt)
       .map(applicant ->
           applicant.attemptFindingEligibilityWithAmount().orElseGet(() -> recalculateEligibilityFor(applicant, limits)
@@ -108,6 +109,13 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
       );
   }
 
+  private static Applicant applicantWith(
+    SocialSecurityNumber ssn, CreditSegment segment, Integer amount, ValidationLimitsDTO limits, Integer period
+  ) {
+    var loan = Loan.with(amount, period, limits.minimumLoanAmount(), limits.maximumLoanAmount());
+    return Applicant.with(ssn, segment, loan);
+  }
+
   private LoanEligibility recalculateEligibilityFor(Applicant applicant, ValidationLimitsDTO limits) {
     Optional<Integer> newPeriod =
       determineEligiblePeriod.forLoan(applicant.loan().amount(), applicant.segment())
@@ -115,7 +123,7 @@ class LoanEligibilityCalculation implements CalculateLoanEligibility {
           limits.minimumLoanPeriodMonths() <= period && period <= limits.maximumLoanPeriodMonths()
         );
 
-    return newPeriod.map(applicant::eligibilityForNewPeriod)
+    return newPeriod.map(applicant::eligibilityForPeriod)
       .orElseGet(applicant::eligibility);
   }
 }
