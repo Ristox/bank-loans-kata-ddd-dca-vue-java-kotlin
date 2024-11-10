@@ -1,7 +1,7 @@
 <template>
   <div class="col-md-12">
     <div class="card card-container">
-      <Form @submit="doSubmit" :validation-schema="schema">
+      <Form @submit="doSubmit" :validation-schema="state.schema">
 
         <div class="form-group required">
           <label for="ssn">SSN (personal code)</label>
@@ -22,9 +22,9 @@
         </div>
 
         <div class="form-group">
-          <button class="btn btn-outline-primary btn-block" :disabled="loading">
+          <button class="btn btn-outline-primary btn-block" :disabled="state.loading">
               <span
-                  v-show="loading"
+                  v-show="state.loading"
                   class="spinner-border spinner-border-sm"
               ></span>
             <span>Apply for loan</span>
@@ -32,13 +32,13 @@
         </div>
 
         <div class="form-group">
-          <div v-if="error" class="alert alert-danger alert" role="alert">
-            {{ error }}
+          <div v-if="state.error" class="alert alert-danger alert" role="alert">
+            {{ state.error }}
           </div>
         </div>
 
         <div class="form-group">
-          <div v-if="eligibilityResponse"
+          <div v-if="state.eligibilityResponse"
                class="alert" role="alert"
                v-bind:class="{
                   'alert-success': loanApproved,
@@ -47,13 +47,13 @@
 
             <div class="result-line">
               <span class="result-heading">Loan request: </span>
-              <span class="result-detail highlight">{{ eligibilityResponse.result }}</span>
+              <span class="result-detail highlight">{{ state.eligibilityResponse.result }}</span>
             </div>
 
-            <div v-if="eligibilityResponse.errors" class="result-line">
+            <div v-if="state.eligibilityResponse.errors" class="result-line">
               <div class="result-line">Errors:</div>
               <ul>
-                <li v-for="error in eligibilityResponse.errors" :key="error.toString()">
+                <li v-for="error in state.eligibilityResponse.errors" :key="error.toString()">
                   {{ error }}
                 </li>
               </ul>
@@ -61,24 +61,24 @@
 
             <div class="result-line">
               <span class="result-heading">Requested amount: </span>
-              <span class="result-detail">{{ eligibilityResponse.loanAmount }} €</span>
+              <span class="result-detail">{{ state.eligibilityResponse.loanAmount }} €</span>
             </div>
 
             <div class="result-line">
               <span class="result-heading">Requested period: </span>
-              <span class="result-detail">{{ eligibilityResponse.loanPeriodMonths }} months</span>
+              <span class="result-detail">{{ state.eligibilityResponse.loanPeriodMonths }} months</span>
             </div>
 
-            <div v-if="eligibilityResponse.eligibleLoanAmount != null" class="result-line">
+            <div v-if="state.eligibilityResponse.eligibleLoanAmount != null" class="result-line">
               <hr />
               <span class="result-heading" v-if="loanApproved">Offered amount: </span>
               <span class="result-heading" v-else-if="loanDenied">Eligible amount: </span>
-              <span class="result-detail highlight">{{ eligibilityResponse.eligibleLoanAmount }} €</span>
+              <span class="result-detail highlight">{{ state.eligibilityResponse.eligibleLoanAmount }} €</span>
             </div>
 
-            <div v-if="eligibilityResponse.eligibleLoanPeriod != null" class="result-line">
+            <div v-if="state.eligibilityResponse!!.eligibleLoanPeriod != null" class="result-line">
               <span class="result-heading">Eligible period: </span>
-              <span class="result-detail highlight">{{ eligibilityResponse.eligibleLoanPeriod }} months</span>
+              <span class="result-detail highlight">{{ state.eligibilityResponse.eligibleLoanPeriod }} months</span>
             </div>
           </div>
         </div>
@@ -89,133 +89,29 @@
 </template>
 
 
-<script lang="ts">
+<script lang="ts" setup>
 import {ErrorMessage, Field, Form} from 'vee-validate';
 import * as yup from 'yup';
-import {NumberSchema, ValidationError} from 'yup';
+import {NumberSchema} from 'yup';
 import server, {COMPLETE_SSN_LENGTH} from "../server/server";
-import {ValidationStatus} from "../models/SsnValidationResult";
-import ValidationLimits from "../models/ValidationLimits";
-import LoanRequest from "../models/LoanRequest";
-import LoanEligibilityResult, {LoanEligibilityStatus} from "../models/LoanEligibilityResult";
+import {ValidationStatus} from "@/models/SsnValidationResult";
+import ValidationLimits from "@/models/ValidationLimits";
+import LoanRequest from "@/models/LoanRequest";
+import LoanEligibilityResult, {LoanEligibilityStatus} from "@/models/LoanEligibilityResult";
+import {computed, onMounted, reactive} from "vue";
 
-export default {
-  name: "Loans",
-  components: {
-    Form,
-    Field,
-    ErrorMessage,
-  },
-  data() {
-    const schema = yup.object()
-      .shape({
-        ssn: validateSsnField(this),
-        loanAmount: validateLoanAmountField(this),
-        loanPeriodMonths: validateLoanPeriodField(this)
-      });
-
-    return {
-      loading: false,
-      validationLimits: new ValidationLimits(500, 1999, 6, 12) as ValidationLimits,
-      error: "",
-      eligibilityResponse: undefined as LoanEligibilityResult | undefined,
-      schema,
-    };
-  },
-  computed: {
-    loanApproved() {
-      return this.eligibilityResponse?.result == LoanEligibilityStatus.APPROVED
-    },
-    loanDenied() {
-      return this.eligibilityResponse?.result == LoanEligibilityStatus.DENIED
-    },
-    loanInvalid() {
-      return this.eligibilityResponse?.result == LoanEligibilityStatus.INVALID
-    },
-  },
-  created() {
-    try {
-      this.loadValidationLimits()
-    } catch (error) {
-      this.error = `Error: unable to load configured limits, using defaults: ${JSON.stringify(this.validationLimits)}`
-    }
-  },
-  methods: {
-    async loadValidationLimits() {
-      this.loading = true
-      try {
-        this.validationLimits = await server.loadValidationLimits()
-      }
-      catch (error) {
-        this.error = 'Error: service unavailable (unable to acquire loan limits, will use default values)'
-      }
-      this.loading = false
-    },
-    async validateSocialSecurityNumber(value: number): Promise<boolean | ValidationError> {
-      if (value.toString().length != COMPLETE_SSN_LENGTH) {
-        return false
-      }
-      try {
-        this.loading = true
-        this.error = ''
-        const validationResult = await server.validateSocialSecurityNumber(value)
-        this.loading = false
-        if (validationResult) {
-          return validationResult.status == ValidationStatus.OK;
-        } else {
-          return true;
-        }
-      } catch (error) {
-        this.error = 'Error: service unavailable (unable to perform validation)'
-        this.loading = false
-        return true
-      }
-    },
-    getValidationLimits(): ValidationLimits {
-      return this.validationLimits
-    },
-    minimumAmount() {
-      return this.validationLimits.minimumLoanAmount
-    },
-    maximumAmount() {
-      return this.validationLimits.maximumLoanAmount
-    },
-    minimumPeriod() {
-      return this.validationLimits.minimumLoanPeriodMonths
-    },
-    maximumPeriod() {
-      return this.validationLimits.maximumLoanPeriodMonths
-    },
-    async doSubmit(request: any) {
-      this.loading = true
-      try {
-        const {ssn, loanAmount, loanPeriodMonths} = request
-        this.eligibilityResponse = await server.calculateEligibilityFor(
-            new LoanRequest(ssn, Number(loanAmount), Number(loanPeriodMonths))
-        )
-        this.error = ''
-      } catch (error) {
-        this.eligibilityResponse = undefined
-        this.error = `Error: service unavailable (unable to calculate loan eligibility)`
-      } finally {
-        this.loading = false
-      }
-    },
-  },
-};
-
-function validateSsnField(thisComponent: any): NumberSchema {
+const validateSsnField = (): NumberSchema => {
   return yup.number()
-    .typeError('Please enter a valid number')
-    .required("Please enter a personal code (SSN)")
-    .test(
-        'validateSocialSecurityNumber',
-        'Personal code (SSN) is not valid',
-        async (value) => await thisComponent.validateSocialSecurityNumber(value)
-    );
+      .typeError('Please enter a valid number')
+      .required("Please enter a personal code (SSN)")
+      .test(
+          'validateSocialSecurityNumber',
+          'Personal code (SSN) is not valid',
+          async (value) => await validateSocialSecurityNumber(value + '') // TODO hack
+      );
 }
 
-function validateLoanAmountField(thisComponent: any): NumberSchema {
+const validateLoanAmountField = (): NumberSchema => {
   return yup.number()
       .typeError('Please enter a valid number')
       .required("Please enter a loan amount")
@@ -223,19 +119,19 @@ function validateLoanAmountField(thisComponent: any): NumberSchema {
           "minimumLoanAmount",
           "Loan amount is below minimum allowed",
           (value) => {
-            return value >= thisComponent.getValidationLimits().minimumLoanAmount
+            return value >= getValidationLimits().minimumLoanAmount
           }
       )
       .test(
           "maximumLoanAmount",
           "Loan amount is above maximum allowed",
           (value) => {
-            return value <= thisComponent.getValidationLimits().maximumLoanAmount
+            return value <= getValidationLimits().maximumLoanAmount
           }
       );
 }
 
-function validateLoanPeriodField(thisComponent: any): NumberSchema {
+const validateLoanPeriodField = (): NumberSchema => {
   return yup.number()
       .typeError('Please enter a valid number')
       .required("Please enter a loan period")
@@ -243,17 +139,122 @@ function validateLoanPeriodField(thisComponent: any): NumberSchema {
           "minimumLoanPeriod",
           "Loan period is below minimum allowed",
           (value) => {
-            return value >= thisComponent.getValidationLimits().minimumLoanPeriodMonths
+            return value >= getValidationLimits().minimumLoanPeriodMonths
           }
       )
       .test(
           "maximumLoanPeriod",
           "Loan period is above maximum allowed",
           (value) => {
-            return value <= thisComponent.getValidationLimits().maximumLoanPeriodMonths
+            return value <= getValidationLimits().maximumLoanPeriodMonths
           }
       );
 }
+
+const schema = yup.object()
+    .shape({
+      ssn: validateSsnField(),
+      loanAmount: validateLoanAmountField(),
+      loanPeriodMonths: validateLoanPeriodField()
+    });
+
+const state = reactive({
+  loading: false,
+  validationLimits: new ValidationLimits(500, 1999, 6, 12) as ValidationLimits,
+  error: "",
+  eligibilityResponse: null as LoanEligibilityResult | null,
+  schema
+});
+
+const loanApproved = computed(
+    () => state.eligibilityResponse?.result == LoanEligibilityStatus.APPROVED
+);
+
+const loanDenied = computed(
+    () => state.eligibilityResponse?.result == LoanEligibilityStatus.DENIED
+);
+
+const loanInvalid = computed(
+    () => state.eligibilityResponse?.result == LoanEligibilityStatus.INVALID
+);
+
+const loadValidationLimits = async () => {
+  state.loading = true;
+  try {
+    state.validationLimits = await server.loadValidationLimits();
+  }
+  catch (error) {
+    state.error = 'Error: service unavailable (unable to acquire loan limits, will use default values)';
+  }
+  state.loading = false;
+}
+
+const validateSocialSecurityNumber = async (ssn: string) => {
+  if (ssn.toString().length != COMPLETE_SSN_LENGTH) {
+    return false
+  }
+  try {
+    state.loading = true
+    state.error = ''
+    const validationResult = await server.validateSocialSecurityNumber(Number(ssn))
+    state.loading = false
+    if (validationResult) {
+      return validationResult.status == ValidationStatus.OK;
+    } else {
+      return true;
+    }
+  } catch (error) {
+    state.error = 'Error: service unavailable (unable to perform validation)'
+    state.loading = false
+    return true
+  }
+}
+
+onMounted(async () => {
+  try {
+    await loadValidationLimits();
+  }
+  catch (error) {
+    state.error = 'Error: service unavailable (unable to acquire loan limits, will use default values)';
+  }
+});
+
+const getValidationLimits = () => {
+  return state.validationLimits;
+}
+const minimumAmount = () => {
+  return state.validationLimits.minimumLoanAmount;
+}
+
+const maximumAmount = () => {
+  return state.validationLimits.maximumLoanAmount;
+}
+
+const minimumPeriod = () => {
+  return state.validationLimits.minimumLoanPeriodMonths;
+}
+
+const maximumPeriod = () => {
+  return state.validationLimits.maximumLoanPeriodMonths;
+}
+
+const doSubmit = async (request: any) => {
+  state.loading = true
+  try {
+    const {ssn, loanAmount, loanPeriodMonths} = request
+    state.eligibilityResponse = await server.calculateEligibilityFor(
+        new LoanRequest(ssn, Number(loanAmount), Number(loanPeriodMonths))
+    )
+    state.error = ''
+  } catch (error) {
+    state.eligibilityResponse = null
+    state.error = `Error: service unavailable (unable to calculate loan eligibility)`
+  } finally {
+    state.loading = false
+  }
+}
+
+
 </script>
 
 <style scoped>
