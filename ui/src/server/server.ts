@@ -3,7 +3,7 @@ import ValidationLimits from "../models/ValidationLimits";
 import LoanRequest from "../models/LoanRequest";
 import LoanEligibilityResult from "../models/LoanEligibilityResult";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL
+const BASE_URL = import.meta.env.VITE_BASE_URL || ''
 const SERVER_URL = BASE_URL + '/api'
 const LOANS_VALIDATION_URL = '/loans/validation'
 const LOANS_ELIGIBILITY_URL = '/loans/eligibility'
