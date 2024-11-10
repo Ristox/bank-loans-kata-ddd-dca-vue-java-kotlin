@@ -287,6 +287,10 @@ label {
   color:red;
 }
 
+.form-group label {
+  margin-bottom: 5px;
+}
+
 div.result-line {
   width: 100%;
 }
@@ -303,6 +307,11 @@ span.result-detail {
 
 span.highlight {
   font-weight: bold;
+}
+
+.btn.btn-block {
+  margin-top: 25px;
+  margin-bottom: 20px;
 }
 
 </style>
