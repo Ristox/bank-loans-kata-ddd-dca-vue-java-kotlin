@@ -34,6 +34,7 @@ hs_err_pid*
 replay_pid*
 
 database.db
+**/*database.db
 
 **/cypress/plugins
 **/cypress/support
