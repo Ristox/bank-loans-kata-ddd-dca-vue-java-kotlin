@@ -1,0 +1,22 @@
+spring:
+  sql:
+    init:
+      mode: always
+      schema-locations: classpath:schema.sql
+      data-locations: classpath:data.sql
+      continue-on-error: true
+  jpa:
+    database-platform: org.hibernate.community.dialect.SQLiteDialect
+    hibernate:
+      ddl-auto: update
+
+  datasource:
+    url: jdbc:sqlite:test-database.db
+    driver-class-name: org.sqlite.JDBC
+    username: admin
+    password: admin
+
+bank:
+  loans:
+    eligibility:
+      credit-segment-adapter: sqlite
